@@ -1,0 +1,227 @@
+import React, { useState, useEffect } from "react"
+import { useTracerContext } from "../../contexts/Tracer"
+import XMark from "../svg/XMark"
+import Pin from "../svg/Pin"
+import * as Types from "./types"
+import VirtualList from "./VirtualList"
+import Inputs from "./Inputs"
+import Outputs from "./Outputs"
+import Pad from "./Pad"
+import Fold from "./Fold"
+import styles from "./index.module.css"
+
+// Fixed line height (must match line height in .line)
+const LINE_HEIGHT = 20
+
+type FnProps<C> = {
+  steps: Record<string, number | null>
+  call: Types.Call<C, Types.FnCall>
+  hasChildren: boolean
+  showGas: boolean
+  renderCallGas?: (ctx: C) => React.ReactNode
+  renderCallType?: (ctx: C, short: boolean) => React.ReactNode
+  renderCallCtx?: (ctx: C) => React.ReactNode
+  highlights: { [key: string]: boolean }
+  setHighlight: (key: string | number, on: boolean) => void
+  getInputLabel?: (val: string) => string | null
+  getOutputLabel?: (val: string) => string | null
+  onClickMod: (call: Types.Call<C, Types.FnCall>) => void
+  onClickFn: (call: Types.Call<C, Types.FnCall>) => void
+  getFnClassName: (call: Types.Call<C, Types.FnCall>) => string
+}
+
+function Fn<V>({
+  steps,
+  call,
+  hasChildren,
+  showGas,
+  renderCallGas,
+  renderCallType,
+  renderCallCtx,
+  highlights,
+  setHighlight,
+  getInputLabel,
+  getOutputLabel,
+  onClickMod,
+  onClickFn,
+  getFnClassName,
+}: FnProps<V>) {
+  const { state, fold, setHover, pin, setStep } = useTracerContext()
+  const isStep = Object.values(steps).some((s) => s == call.i)
+
+  const _onClickMod = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onClickMod(call)
+  }
+
+  const _onClickFn = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onClickFn(call)
+  }
+
+  const onClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    pin([call.i])
+  }
+
+  const onClickFold = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    fold(call.i)
+  }
+
+  const onMouseEnter = () => {
+    setHover(call.i)
+  }
+
+  const onMouseLeave = () => {
+    setHover(null)
+  }
+
+  const show = !state.folded.has(call.i)
+
+  return (
+    <div
+      className={`${styles.fn} ${getFnClassName(call)}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={() => setStep("trace", call.i)}
+    >
+      <div className={styles.sticky}>
+        {renderCallType ? renderCallType(call?.ctx, !showGas) : null}
+        {showGas && renderCallGas ? renderCallGas(call?.ctx) : null}
+        <div className={styles.index} onClick={onClick}>
+          {state.pins.has(call.i) ? (
+            <span className={styles.pin}>
+              <Pin size={10} />
+            </span>
+          ) : (
+            <span className={isStep ? styles.indexStep : ""}>{call.i}</span>
+          )}
+        </div>
+      </div>
+      <Pad depth={call.depth} height={LINE_HEIGHT} />
+      <div className={styles.call}>
+        <Fold show={show} hasChildren={hasChildren} onClick={onClickFold} />
+        {!call.ok ? <XMark className={styles.x} size={16} /> : null}
+        <div
+          className={`${highlights[call.fn.mod] ? styles.objHighlight : styles.objNoHighlight}`}
+          onMouseEnter={() => setHighlight(call.fn.mod, true)}
+          onMouseLeave={() => setHighlight(call.fn.mod, false)}
+          onClick={_onClickMod}
+        >
+          {call.fn.mod}
+        </div>
+        <div className={styles.dot}>.</div>
+        <div
+          className={`${highlights[call.fn.name] ? styles.fnHighlight : styles.fnNoHighlight}`}
+          onMouseEnter={() => setHighlight(call.fn.name, true)}
+          onMouseLeave={() => setHighlight(call.fn.name, false)}
+          onClick={_onClickFn}
+        >
+          {call.fn.name || "?"}
+        </div>
+        {renderCallCtx ? renderCallCtx(call.ctx) : null}
+        <div>(</div>
+        <Inputs inputs={call.fn.inputs} getLabel={getInputLabel} />
+        <div>)</div>
+        {call.fn.outputs.length > 0 ? (
+          <div className={styles.outputs}>
+            <div className={styles.arrow}>{"→"}</div>
+            <div>(</div>
+            <Outputs outputs={call.fn.outputs} getLabel={getOutputLabel} />
+            <div>)</div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+type TracerProps<C> = {
+  height: number
+  calls: Types.Call<C, Types.FnCall>[]
+  showGas: boolean
+  renderCallGas?: (ctx: C) => React.ReactNode
+  renderCallType?: (ctx: C, short: boolean) => React.ReactNode
+  renderCallCtx?: (ctx: C) => React.ReactNode
+  getInputLabel?: (val: string) => string | null
+  getOutputLabel?: (val: string) => string | null
+  onClickMod: (call: Types.Call<C, Types.FnCall>) => void
+  onClickFn: (call: Types.Call<C, Types.FnCall>) => void
+  getFnClassName: (call: Types.Call<C, Types.FnCall>) => string
+}
+
+function Tracer<C>({
+  height,
+  calls,
+  showGas,
+  renderCallGas,
+  renderCallType,
+  renderCallCtx,
+  getInputLabel,
+  getOutputLabel,
+  onClickMod,
+  onClickFn,
+  getFnClassName,
+}: TracerProps<C>) {
+  const tracer = useTracerContext()
+
+  // Highlight state of modules and functions
+  const [highlights, setHighlights] = useState<{ [key: string]: boolean }>({})
+
+  const setHighlight = (key: string | number, on: boolean) => {
+    setHighlights((state) => ({
+      ...state,
+      [key]: on,
+    }))
+  }
+
+  useEffect(() => {
+    tracer.setStep("trace", 0)
+  }, [])
+
+  // Filter out folded calls
+  const cs: Types.Call<C, Types.FnCall>[] = []
+  let i = 0
+  while (i < calls.length) {
+    cs.push(calls[i])
+    if (tracer.state.folded.has(i)) {
+      // Skip children
+      const d = calls[i].depth
+      while (calls[i + 1]?.depth > d) {
+        i++
+      }
+    }
+    i++
+  }
+
+  return (
+    <div className={styles.component}>
+      <VirtualList
+        len={cs.length}
+        lineHeight={LINE_HEIGHT}
+        height={height}
+        render={(i) => (
+          <Fn
+            steps={tracer.state.step}
+            call={cs[i]}
+            hasChildren={calls?.[cs?.[i].i + 1]?.depth > cs?.[i]?.depth}
+            showGas={showGas}
+            renderCallGas={renderCallGas}
+            renderCallType={renderCallType}
+            renderCallCtx={renderCallCtx}
+            highlights={highlights}
+            setHighlight={setHighlight}
+            getInputLabel={getInputLabel}
+            getOutputLabel={getOutputLabel}
+            onClickMod={onClickMod}
+            onClickFn={onClickFn}
+            getFnClassName={getFnClassName}
+          />
+        )}
+      />
+    </div>
+  )
+}
+
+export default Tracer

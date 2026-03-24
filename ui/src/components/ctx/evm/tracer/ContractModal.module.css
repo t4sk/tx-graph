@@ -1,0 +1,69 @@
+.component {
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.label {
+}
+.blockscan {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--icon-color);
+  transition: all 200ms ease-in-out;
+}
+.blockscan:hover {
+  color: var(--icon-hover-color);
+}
+.val {
+  margin-left: 4px;
+}
+.code {
+  overflow: auto;
+}
+.codeHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 10px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.chevron {
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.chevronOpen {
+  transform: rotate(90deg);
+}
+.codeName {
+  margin-left: 4px;
+}
+.tools {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 0 6px 0;
+}
+.copyBtn {
+  margin-right: 6px;
+  background: var(--btn-bg-color);
+  color: var(--btn-color);
+  width: 48px;
+}
+.fullScreenBtn {
+  background: var(--btn-bg-color);
+  color: var(--btn-color);
+  width: 48px;
+}

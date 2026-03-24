@@ -1,0 +1,202 @@
+.component {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.tracer {
+  height: 100%;
+}
+.tracerController {
+  display: flex;
+  flex-direction: row;
+  padding: 10px 12px 4px 12px;
+  border-bottom: 1px solid #4b4949;
+  box-sizing: border-box;
+  height: 64px;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.traceControllerLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.traceControllerRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+}
+.checkboxes {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+.ethCheckbox {
+  accent-color: #F472B6;
+}
+.gasCheckbox {
+  accent-color: orange;
+}
+.ethStepper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+}
+.ethStep {
+  font-size: 11px;
+  color: #F472B6;
+  min-width: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 1;
+}
+.ethStep:hover {
+  opacity: 0.8;
+}
+.chevronLeft {
+  transform: rotate(180deg);
+  cursor: pointer;
+  color: var(--secondary-text-color);
+  transition: color 0.15s ease;
+}
+.chevronLeft:hover {
+  color: #F472B6;
+}
+.chevronRight {
+  cursor: pointer;
+  color: var(--secondary-text-color);
+  transition: color 0.15s ease;
+}
+.chevronRight:hover {
+  color: #F472B6;
+}
+.tx {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.txHashLabel {
+  white-space: nowrap;
+  padding-right: 10px;
+}
+.txHash {
+  display: flex;
+  flex-direction: row;
+  color: var(--text-2-color);
+}
+.callsCount {
+  white-space: nowrap;
+}
+.contractCount {
+  white-space: nowrap;
+  margin-left: auto;
+  color: var(--secondary-text-color);
+}
+.tracerComponent {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 0px 0px 12px;
+  overflow-y: hidden;
+}
+.objLabel {
+  color: var(--tracer-obj-color);
+}
+/* Graph */
+.accNode {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.fnNode {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.nodeText {
+  width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--node-text-color);
+  font-size: 20px;
+  padding: 10px 12px 10px 12px;
+}
+.hover {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: var(--bg-dim-color);
+  color: var(--text-hover-color);
+  font-size: 12px;
+}
+.addr {
+  color: var(--tracer-val-color);
+}
+.arrow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.arrowIndex {
+  /* Prevent element from shrinking when x overflows */
+  /* Fixed width for up to 4 digits */
+  min-width: 38px;
+  width: 38px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--tracer-index-color);
+  background-color: var(--bg-dim-color);
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  padding-right: 10px;
+  height: 100%;
+}
+.arrowSrc {
+  color: var(--tracer-obj-color);
+}
+.arrowDst {
+  color: var(--tracer-obj-color);
+}
+.call {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+}
+.index {
+  margin-right: 8px;
+}
+.obj {
+  color: var(--tracer-obj-color);
+}
+.arrow {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+.func {
+}
+.fnStep {
+  background-color: var(--tracer-line-step-color);
+}
+.fnEth {
+  background-color: rgba(244, 114, 182, 0.1);
+}

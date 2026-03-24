@@ -1,0 +1,243 @@
+import { assert } from "../utils"
+import * as TxTypes from "../types/tx"
+import { CacheEntry, EtherscanContractInfo, Job } from "./types"
+import { post, get } from "./lib"
+import { RPC_CONFIG } from "../config"
+import { PRECOMPILES } from "../evm"
+
+const DISABLE_CACHE = !import.meta.env.PROD
+const CACHE_TTL = 60 * 1000
+const CACHE_PREFIX = "txgraph_cache_"
+
+function getCached<T>(key: string): T | null {
+  if (DISABLE_CACHE) {
+    return null
+  }
+  try {
+    const cacheKey = CACHE_PREFIX + key
+    const item = localStorage.getItem(cacheKey)
+    if (!item) return null
+
+    const entry: CacheEntry<T> = JSON.parse(item)
+    const now = Date.now()
+
+    if (now - entry.timestamp > CACHE_TTL) {
+      localStorage.removeItem(cacheKey)
+      return null
+    }
+
+    return entry.data
+  } catch (e) {
+    console.error("Cache read error:", e)
+    return null
+  }
+}
+
+function setCache<T>(key: string, data: T): void {
+  if (DISABLE_CACHE) {
+    return
+  }
+  try {
+    const cacheKey = CACHE_PREFIX + key
+    const entry: CacheEntry<T> = {
+      data,
+      timestamp: Date.now(),
+    }
+    localStorage.setItem(cacheKey, JSON.stringify(entry))
+  } catch (e) {
+    console.error("Cache write error:", e)
+  }
+}
+
+export async function getTxTrace(
+  chain: string,
+  txHash: string,
+  rpcUrl?: string,
+): Promise<{ result: TxTypes.TxCall }> {
+  const cacheKey = `tx:${chain}:${txHash}`
+  const cached = getCached<{ result: TxTypes.TxCall }>(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  // @ts-ignore
+  const cfg = RPC_CONFIG[chain]
+  const url = rpcUrl || cfg?.url
+  assert(url, `RPC URL for ${chain} is empty`)
+
+  const res = await post<any, { result: TxTypes.TxCall }>(url, {
+    jsonrpc: "2.0",
+    method: "debug_traceTransaction",
+    params: [txHash, { tracer: "callTracer" }],
+    id: cfg.chainId,
+  })
+
+  if (res?.result) {
+    setCache(cacheKey, res)
+  }
+
+  /*
+  Fetch events
+  const txRes = await post<any, { result: any }>(url, {
+    jsonrpc: "2.0",
+    method: "eth_getTransactionReceipt",
+    params: [txHash],
+    id: cfg.chainId,
+  })
+
+  console.log("TX", res, txRes)
+  */
+
+  return res
+}
+
+export async function postJobs(params: {
+  chain: string
+  addrs: string[]
+}): Promise<{ job_ids: string[]; contracts: TxTypes.ContractInfo<string>[] }> {
+  const precompiles: TxTypes.ContractInfo<string>[] = []
+  const addrs = params.addrs.filter((addr) => {
+    const p = PRECOMPILES[addr.toLowerCase()]
+    if (p) {
+      precompiles.push({
+        chain: params.chain,
+        address: addr,
+        name: p.name,
+        abi: p.abi,
+      })
+      return false
+    }
+    return true
+  })
+
+  const res = await post<
+    any,
+    { job_ids: string[]; contracts: TxTypes.ContractInfo<string>[] }
+  >(`${import.meta.env.VITE_API_URL}/contracts`, { ...params, addrs })
+
+  return {
+    ...res,
+    contracts: [...precompiles, ...res.contracts],
+  }
+}
+
+export async function getJobs(params: {
+  job_ids: string[]
+}): Promise<Record<string, Job>> {
+  return post<any, Record<string, Job>>(
+    `${import.meta.env.VITE_API_URL}/contracts/q`,
+    params,
+  )
+}
+
+export async function getContract(params: {
+  chain: string
+  addr: string
+}): Promise<TxTypes.ContractInfo<Record<string, string>> | null> {
+  const cacheKey = `contract:${params.chain}:${params.addr}`
+  const cached =
+    getCached<TxTypes.ContractInfo<Record<string, string>>>(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  const res = await get<TxTypes.ContractInfo<string> | null>(
+    `${import.meta.env.VITE_API_URL}/contracts/${params.chain}/${params.addr}`,
+  )
+
+  if (!res) {
+    return null
+  }
+
+  try {
+    if (res?.src) {
+      // Remove extra { and }
+      const src: TxTypes.Source = JSON.parse(res.src.slice(1, -1))
+      const data = {
+        ...res,
+        src: Object.entries(src.sources).reduce(
+          (z, [name, { content }]) => {
+            z[name] = content
+            return z
+          },
+          {} as Record<string, string>,
+        ),
+      }
+      setCache(cacheKey, data)
+      return data
+    }
+  } catch (err) {
+    console.log(err)
+  }
+
+  return {
+    ...res,
+    src: res.src ? { [res.name || "?"]: res.src } : {},
+  }
+}
+
+export async function batchGetContracts(params: {
+  chain: string
+  addrs: string[]
+}): Promise<
+  Record<
+    string,
+    { name: string | null; src: Record<string, string> | null } | null
+  >
+> {
+  const res = await Promise.all(
+    params.addrs.map((addr) => getContract({ chain: params.chain, addr })),
+  )
+
+  return params.addrs.reduce(
+    (z, addr, i) => {
+      if (res[i]?.src) {
+        z[addr] = {
+          name: res[i]?.name || null,
+          src: res[i]?.src,
+        }
+        return z
+      }
+
+      z[addr] = null
+      return z
+    },
+    {} as Record<
+      string,
+      { name: string | null; src: Record<string, string> | null } | null
+    >,
+  )
+}
+
+export async function getEtherscanContract(
+  addr: string,
+  chain: any,
+  apiKey?: string,
+): Promise<{ abi: any | null; name: string | null }> {
+  const p = PRECOMPILES[addr.toLowerCase()]
+  if (p) {
+    return { abi: p.abi, name: p.name }
+  }
+
+  const key = apiKey || import.meta.env.VITE_ETHERSCAN_API_KEY
+  const cfg = RPC_CONFIG[chain as keyof typeof RPC_CONFIG]
+  const chainId = cfg?.chainId
+  const res = await get<{ result: EtherscanContractInfo[] }>(
+    `https://api.etherscan.io/v2/api?chainid=${chainId}&module=contract&action=getsourcecode&address=${addr}&apikey=${key}`,
+  )
+
+  // @ts-ignore
+  const abi = res?.result?.[0]?.ABI || ""
+  // @ts-ignore
+  const name = res?.result?.[0]?.ContractName || null
+
+  const parse = (abi: string) => {
+    try {
+      return JSON.parse(abi)
+    } catch (e) {
+      return null
+    }
+  }
+
+  return { abi: parse(abi), name }
+}

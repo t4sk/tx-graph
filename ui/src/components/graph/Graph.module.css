@@ -1,0 +1,65 @@
+.root {
+  position: relative;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  touch-action: none;
+}
+
+.controls {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.zoom,
+.step {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-dim-color);
+  border-radius: 6px;
+  padding: 2px 4px;
+}
+
+.zoom button,
+.step button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 8px;
+  line-height: 1;
+}
+.plus {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+.minus {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+.lt {
+ transform: rotate(180deg);
+}
+.gt {
+}
+.hover {
+  position: relative;
+}

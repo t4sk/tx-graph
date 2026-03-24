@@ -1,0 +1,108 @@
+.component {
+  background-color: var(--bg-color);
+  /* overflow: auto; */
+  white-space: nowrap;
+}
+.hide {
+  display: none;
+}
+.fn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+  /* Need to specify height for Pad to display a vertical line */
+  height: 20px;
+  color: var(--tracer-line-color);
+  background-color: var(--bg-color);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+.fn:hover {
+  background-color: var(--tracer-line-hover-color);
+}
+.sticky {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: sticky;
+  left: 0;
+  background-color: var(--bg-color);
+  z-index: 1;
+  padding-right: 10px;
+  height: 100%;
+}
+.index {
+  /* Prevent element from shrinking when x overflows */
+  /* Fixed width for up to 4 digits */
+  min-width: 38px;
+  width: 38px;
+  text-align: right;
+  color: var(--tracer-index-color);
+  transition: background-color 0.2s ease;
+  font-variant-numeric: tabular-nums;
+}
+.index:hover {
+  color: var(--tracer-index-hover-color);
+}
+.indexStep {
+  color: var(--tracer-index-step-color);
+}
+.pin {
+  color: var(--tracer-pin-color);
+}
+.x {
+  color: var(--tracer-x-color);
+}
+.call {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.objHighlight {
+  cursor: pointer;
+  padding: 0 2px 0 2px;
+  border-radius: 2px;
+  background-color: var(--tracer-obj-hl-bg-color);
+  color: var(--tracer-obj-hl-color);
+  outline: 1px solid var(--tracer-obj-hl-outline-color);
+  outline-offset: -1px;
+  transition: color 0.1s ease, background-color 0.1s ease;
+}
+.objNoHighlight {
+  cursor: pointer;
+  padding: 0 2px 0 2px;
+  border-radius: 2px;
+  color: var(--tracer-obj-color);
+  transition: color 0.1s ease, background-color 0.1s ease;
+}
+.fnHighlight {
+  cursor: pointer;
+  padding: 0 2px 0 2px;
+  border-radius: 2px;
+  background-color: var(--tracer-fn-hl-bg-color);
+  color: var(--tracer-fn-hl-color);
+  outline: 1px solid var(--tracer-fn-hl-outline-color);
+  outline-offset: -1px;
+  transition: color 0.1s ease, background-color 0.1s ease;
+}
+.fnNoHighlight {
+  cursor: pointer;
+  padding: 0 2px 0 2px;
+  border-radius: 2px;
+  color: var(--tracer-fn-color);
+  transition: color 0.1s ease, background-color 0.1s ease;
+}
+.dot {
+  color: var(--tracer-dot-color);
+}
+.outputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.arrow {
+  color: var(--tracer-arrow-color);
+  margin-left: 10px;
+  margin-right: 10px;
+}

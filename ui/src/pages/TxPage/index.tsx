@@ -1,0 +1,698 @@
+import { useState } from "react"
+import { toast } from "react-toastify"
+import { useParams, useSearchParams } from "react-router-dom"
+import JSZip from "jszip"
+import { RPC_CONFIG } from "../../config"
+import * as api from "../../api"
+import { useAppContext } from "../../contexts/App"
+import { useWindowSizeContext } from "../../contexts/WindowSize"
+import { useFileWatchContext } from "../../contexts/FileWatch"
+import {
+  Provider as TracerProvider,
+  useTracerContext,
+  State as TracerState,
+} from "../../contexts/Tracer"
+import Splits from "../../components/Splits"
+import { Graph as CanvasGraph } from "../../components/graph/Graph"
+import * as GraphTypes from "../../components/graph/lib/types"
+import Tracer from "../../components/tracer"
+import * as TracerTypes from "../../components/tracer/types"
+import FnDef from "../../components/tracer/FnDef"
+import FnCall from "../../components/tracer/FnCall"
+import Evm from "../../components/ctx/evm/tracer/Evm"
+import Op from "../../components/ctx/evm/tracer/Op"
+import Gas from "../../components/ctx/evm/tracer/Gas"
+import FnModal from "../../components/ctx/evm/tracer/FnModal"
+import ContractModal from "../../components/ctx/evm/tracer/ContractModal"
+import CopyText from "../../components/CopyText"
+import * as EvmTypes from "../../components/ctx/evm/types"
+import Checkbox from "../../components/Checkbox"
+import Modal from "../../components/Modal"
+import Button from "../../components/Button"
+import ArrowDownTray from "../../components/svg/ArrowDownTray"
+import Chevron from "../../components/svg/Chevron"
+import { useGetTrace, ObjType } from "../../hooks/useGetTrace"
+import useAsync from "../../hooks/useAsync"
+import styles from "./index.module.css"
+
+// TODO: graph - token transfers
+// TODO: error handling
+
+// Must match height in .tracerController
+const TRACER_CONTROLLER_HEIGHT = 64
+// Must match paddings in .tracerComponent
+const TRACER_PADDING_TOP = 0
+const TRACER_PADDING_BOTTOM = 0
+
+// Canvas doesn't recognize css var colors
+// Don't use opaque colors (rgba) for overlapping objects (it intensifies the colors)
+const STYLES = {
+  BG_COLOR: "rgb(17, 17, 17)",
+  NODE_BORDER_COLOR: "rgb(70, 75, 155)",
+  // NODE_COLOR: "rgba(12, 62, 92, 0.55)",
+  NODE_COLOR: "rgb(20, 20, 32)",
+  NODE_TEXT_COLOR: "rgb(255, 255, 255)",
+  NODE_HOVER_COLOR: "rgb(40, 45, 100)",
+  NODE_HOVER_TEXT_COLOR: "rgb(210, 215, 255)",
+  NODE_HOVER_BORDER_COLOR: "rgb(129, 140, 248)",
+  NODE_DIM_COLOR: "rgba(20, 20, 32, 0.5)",
+  ARROW_COLOR: "rgb(160, 160, 170)",
+  ARROW_DIM_COLOR: "rgb(80, 85, 95)",
+  // ARROW_IN_COLOR: "rgb(255, 99, 99)",
+  ARROW_IN_COLOR: "rgb(64, 196, 255)",
+  ARROW_OUT_COLOR: "rgb(250, 160, 100)",
+  ARROW_HOVER_COLOR: "rgb(200, 160, 255)",
+  ARROW_PIN_COLOR: "rgb(255, 215, 0)",
+  ARROW_TRACER_COLOR: "rgb(0, 255, 136)",
+  ARROW_TRACER_ETH_COLOR: "#FF4DB8",
+  ARROW_ETH_COLOR: "#8B2D52",
+}
+
+type ArrowType =
+  | "in"
+  | "out"
+  | "hover"
+  | "dim"
+  | "pin"
+  | "tracer"
+  | "step"
+  | "step-eth"
+  | "eth"
+  | ""
+
+function getArrowType(
+  hover: GraphTypes.Hover | null,
+  arrow: GraphTypes.Arrow,
+  tracer: TracerState,
+  ethIdxSet: Set<number> | null,
+): ArrowType {
+  if (tracer.step["eth"] == arrow.i) {
+    return "step-eth"
+  }
+  if (tracer.step["trace"] == arrow.i) {
+    return "step"
+  }
+  if (tracer.pins.has(arrow.i)) {
+    return "pin"
+  }
+  if (ethIdxSet && ethIdxSet.has(arrow.i)) {
+    return "eth"
+  }
+  if (tracer.hover != null) {
+    if (tracer.hover == arrow.i) {
+      return "tracer"
+    }
+    return "dim"
+  }
+  if (hover?.node != null) {
+    if (hover.node == arrow.s) {
+      return "out"
+    }
+    if (hover.node == arrow.e) {
+      return "in"
+    }
+    return "dim"
+  }
+  if (hover?.arrows != null && hover?.arrows.size > 0) {
+    if (hover.arrows.has(arrow.i)) {
+      return "hover"
+    }
+    return "dim"
+  }
+  return "dim"
+}
+
+function getArrowColor(t: ArrowType): string {
+  switch (t) {
+    case "in":
+      return STYLES.ARROW_IN_COLOR
+    case "out":
+      return STYLES.ARROW_OUT_COLOR
+    case "hover":
+      return STYLES.ARROW_HOVER_COLOR
+    case "dim":
+      return STYLES.ARROW_DIM_COLOR
+    case "pin":
+      return STYLES.ARROW_PIN_COLOR
+    case "tracer":
+      return STYLES.ARROW_TRACER_COLOR
+    case "step":
+      return STYLES.ARROW_TRACER_COLOR
+    case "step-eth":
+      return STYLES.ARROW_TRACER_ETH_COLOR
+    case "eth":
+      return STYLES.ARROW_ETH_COLOR
+    default:
+      return STYLES.ARROW_COLOR
+  }
+}
+
+function getNodeFillColor(
+  objs: Map<
+    GraphTypes.Id,
+    GraphTypes.Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
+  >,
+  hover: GraphTypes.Hover | null,
+  node: GraphTypes.Node,
+  graph: GraphTypes.Graph,
+  tracer: TracerState,
+  calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[],
+): string {
+  const obj = objs.get(node.id) as GraphTypes.Obj<
+    ObjType,
+    EvmTypes.Account | TracerTypes.FnDef
+  >
+  // Step src/dst highlight
+  for (const s of Object.values(tracer.step)) {
+    if (s != null) {
+      const call = calls[s]
+      if (call && (node.id == call.src || node.id == call.dst)) {
+        return STYLES.NODE_HOVER_COLOR
+      }
+    }
+  }
+  // Arrows are hovered
+  if (hover?.arrows && hover?.arrows?.size > 0) {
+    if (obj?.type == "acc") {
+      return STYLES.NODE_DIM_COLOR
+    }
+    return "transparent"
+  }
+  // Hover or incoming or outgoing node
+  if (hover) {
+    if (hover?.node != null) {
+      if (hover?.node == node.id) {
+        return STYLES.NODE_HOVER_COLOR
+      }
+      if (
+        graph.incoming.get(hover.node)?.has(node.id) ||
+        graph.outgoing.get(hover.node)?.has(node.id)
+      ) {
+        return STYLES.NODE_HOVER_COLOR
+      }
+      if (obj?.type == "acc") {
+        return STYLES.NODE_DIM_COLOR
+      }
+      return "transparent"
+    }
+  }
+  // Default (no hovered node or arrow)
+  if (obj?.type == "acc") {
+    return STYLES.NODE_COLOR
+  }
+  return "transparent"
+}
+
+const GraphNode: React.FC<{
+  label?: string
+  addr?: string
+  fns: TracerTypes.FnDef[]
+}> = ({ label, addr, fns }) => {
+  return (
+    <div className={styles.hover}>
+      {label ? <div className={styles.objLabel}>{label}</div> : null}
+      {addr ? <CopyText text={addr} val={addr} /> : null}
+      {fns.map((v, i) => (
+        <FnDef key={i} name={v.name} inputs={v.inputs} outputs={v.outputs} />
+      ))}
+    </div>
+  )
+}
+
+const GraphFnDef: React.FC<{ fn?: TracerTypes.FnDef }> = ({ fn }) => {
+  const name = fn?.name || ""
+  const inputs = fn?.inputs || []
+  const outputs = fn?.outputs || []
+
+  if (name) {
+    return (
+      <div className={styles.hover}>
+        <FnDef name={name} inputs={inputs} outputs={outputs} />
+      </div>
+    )
+  }
+  return (
+    <div className={styles.hover}>
+      <div>?</div>
+    </div>
+  )
+}
+
+const GraphArrows: React.FC<{
+  nodes: {
+    i: number
+    src: string
+    dst: string
+    val: number | bigint
+    inputs: TracerTypes.Input[]
+    outputs: TracerTypes.Output[]
+    fn: string
+  }[]
+}> = ({ nodes }) => {
+  return (
+    <div className={styles.hover}>
+      {nodes.map((node) => {
+        return (
+          <div key={node.i} className={styles.arrow}>
+            <div className={styles.arrowIndex}>{node.i}</div>
+            <div className={styles.arrowSrc}>{node.src}</div>
+            <div>{`→`}</div>
+            <div className={styles.arrowDst}>{node.dst}</div>
+            <div>.</div>
+            <FnCall
+              name={node.fn}
+              val={node.val}
+              inputs={node.inputs}
+              outputs={node.outputs}
+            />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function TxPage() {
+  const { txHash = "" } = useParams()
+  const [q] = useSearchParams()
+  const chain = q.get("chain") || ""
+
+  const app = useAppContext()
+  const windowSize = useWindowSizeContext()
+  const tracer = useTracerContext()
+  const fileWatch = useFileWatchContext()
+
+  const getTrace = useGetTrace({
+    txHash,
+    chain,
+    rpc: app.state.rpc,
+    etherscan: app.state.etherscan,
+    mem: fileWatch,
+  })
+  const [pinEth, setPinEth] = useState(false)
+  const [showGas, setShowGas] = useState(true)
+  const [graphModal, setGraphModal] = useState<GraphTypes.Hover | null>(null)
+  const [traceModal, setTraceModal] = useState<{
+    type: "mod" | "fn"
+    call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>
+  } | null>(null)
+  const batchGetContracts = useAsync(api.batchGetContracts)
+
+  if (getTrace.state.trace.error) {
+    return <div>error :(</div>
+  }
+
+  if (!windowSize || !getTrace.state.data) {
+    return <div>loading...</div>
+  }
+
+  const { graph, calls, groups, objs, labels, addrs } = getTrace.state.data
+  const ethIdxs = calls.filter((c) => (c?.ctx?.val ?? 0) > 0).map((c) => c.i)
+  const ethIdxSet = new Set(ethIdxs)
+
+  async function onClickDownloadCode() {
+    if (batchGetContracts.running) {
+      return
+    }
+
+    const { data, error } = await batchGetContracts.exec({
+      chain,
+      addrs: [...addrs.values()],
+    })
+
+    if (error) {
+      toast.error(`Failed to fetch contracts: ${error}`)
+      return
+    }
+
+    const files = []
+    for (const [addr, c] of Object.entries(data ?? {})) {
+      if (c?.src) {
+        const flat = Object.entries(c.src)
+          .map(([name, code]) => `// ${name}\n${code}`)
+          .join("\n")
+
+        if (flat.length > 0) {
+          files.push({
+            name: `${c?.name || "?"}_${addr}.sol`,
+            data: flat,
+          })
+        }
+      }
+    }
+
+    if (files.length == 0) {
+      toast.warn("No verified contract source code to download")
+    }
+
+    files.push({
+      name: "trace.json",
+      data: JSON.stringify(getTrace.state.trace.data),
+    })
+
+    const zip = new JSZip()
+    for (const f of files) {
+      zip.file(f.name, f.data)
+    }
+
+    // Generate and download zip file
+    const blob = await zip.generateAsync({ type: "blob" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `contracts_${txHash.slice(0, 8)}...${txHash.slice(-5)}.zip`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  function onCheckGas() {
+    setShowGas(!showGas)
+  }
+
+  function onCheckEth() {
+    setPinEth(!pinEth)
+    if (ethIdxs.length > 0) {
+      if (!pinEth) {
+        tracer.setStep("eth", ethIdxs[0])
+      } else {
+        tracer.setStep("eth", null)
+      }
+    }
+  }
+
+  function ethStepPrev() {
+    if (ethIdxs.length == 0) return
+    const cur = ethIdxs.indexOf(tracer.state.step["eth"] ?? -1)
+    const prev = (cur - 1 + ethIdxs.length) % ethIdxs.length
+    tracer.setStep("eth", ethIdxs[prev])
+  }
+
+  function ethStepNext() {
+    if (ethIdxs.length == 0) return
+    const cur = ethIdxs.indexOf(tracer.state.step["eth"] ?? -1)
+    const next = (cur + 1) % ethIdxs.length
+    tracer.setStep("eth", ethIdxs[next])
+  }
+
+  function onPointerDown(hover: GraphTypes.Hover | null) {
+    setGraphModal(hover)
+  }
+
+  function onClickMod(call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>) {
+    setTraceModal({ type: "mod", call })
+  }
+
+  function onClickFn(call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>) {
+    setTraceModal({ type: "fn", call })
+  }
+
+  function renderNode(node: number, details: boolean) {
+    const obj = objs.get(node)
+    // @ts-ignore
+    const addr = obj?.val?.addr || ""
+    const fns = details
+      ? // @ts-ignore
+        [...obj?.val?.fns?.values()] || []
+      : []
+
+    return <GraphNode label={obj?.val?.name} addr={addr} fns={fns} />
+  }
+
+  function renderFn(node: number) {
+    const obj = objs.get(node)
+    // @ts-ignore
+    return <GraphFnDef fn={obj?.val} />
+  }
+
+  function renderArrows(arrows: Set<number>) {
+    const nodes = []
+    for (const i of arrows) {
+      const call = calls[i]
+      const src = objs.get(call.src)
+      const dst = objs.get(call.dst)
+      nodes.push({
+        i,
+        // @ts-ignore
+        src: src?.val?.mod || call?.ctx?.src || "?",
+        // @ts-ignore
+        dst: dst?.val?.mod || call?.ctx?.dst || "?",
+        val: call?.ctx?.val || 0,
+        fn: dst?.val?.name || "",
+        inputs: call?.fn?.inputs || [],
+        outputs: call?.fn?.outputs || [],
+      })
+    }
+
+    return <GraphArrows nodes={nodes} />
+  }
+
+  function renderTraceModal() {
+    if (!traceModal) {
+      return null
+    }
+    if (traceModal.type == "mod") {
+      return <ContractModal ctx={traceModal.call.ctx} chain={chain} />
+    }
+    if (traceModal.type == "fn") {
+      return <FnModal ctx={traceModal.call.ctx} />
+    }
+    return null
+  }
+
+  function renderGraphModal() {
+    if (!graphModal) {
+      return null
+    }
+    if (graphModal.node != null) {
+      const obj = objs.get(graphModal.node)
+      if (obj?.type == "acc") {
+        return renderNode(graphModal.node, true)
+      }
+      if (obj?.type == "fn") {
+        return renderFn(graphModal.node)
+      }
+    }
+    if (graphModal.arrows != null && graphModal.arrows.size > 0) {
+      return renderArrows(graphModal.arrows)
+    }
+    return null
+  }
+
+  function renderChainIcon() {
+    const cfg = RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as {
+      icon?: React.FC<{ size: number }>
+    }
+    if (!cfg?.icon) {
+      return null
+    }
+    const Icon = cfg.icon
+    return (
+      <div>
+        <Icon size={24} />
+      </div>
+    )
+  }
+
+  return (
+    <div className={styles.component}>
+      <Splits>
+        {(rect) => (
+          <div className={styles.tracer}>
+            <div className={styles.tracerController}>
+              <div className={styles.traceControllerLeft}>
+                <div className={styles.tx}>
+                  {renderChainIcon()}
+                  <div className={styles.txHashLabel}>TX hash:</div>
+                  <div className={styles.txHash}>
+                    <CopyText text={txHash} val={txHash} max={10} />
+                  </div>
+                  <div className={styles.callsCount}>{calls.length} calls</div>
+                </div>
+                <div className={styles.checkboxes}>
+                  <Checkbox
+                    className={styles.gasCheckbox}
+                    checked={showGas}
+                    onChange={onCheckGas}
+                  >
+                    Gas
+                  </Checkbox>
+                  <Checkbox
+                    className={styles.ethCheckbox}
+                    checked={pinEth}
+                    onChange={onCheckEth}
+                  >
+                    ETH
+                  </Checkbox>
+                  {pinEth && ethIdxs.length > 0 && (
+                    <div className={styles.ethStepper}>
+                      <Chevron
+                        size={14}
+                        className={styles.chevronLeft}
+                        onClick={ethStepPrev}
+                      />
+                      <span
+                        className={styles.ethStep}
+                        onClick={() => tracer.setStep("eth", ethIdxs[0])}
+                      >
+                        {tracer.state.step["eth"] ?? 0}
+                      </span>
+                      <Chevron
+                        size={14}
+                        className={styles.chevronRight}
+                        onClick={ethStepNext}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className={styles.traceControllerRight}>
+                <div className={styles.contractCount}>
+                  {getTrace.state.q.fetched} / {getTrace.state.q.total}{" "}
+                  contracts
+                </div>
+                <Button
+                  disabled={
+                    batchGetContracts.running ||
+                    addrs.size == 0 ||
+                    getTrace.state.q.running ||
+                    chain == "foundry-test"
+                  }
+                  onClick={onClickDownloadCode}
+                >
+                  <ArrowDownTray size={16} />
+                </Button>
+              </div>
+            </div>
+            <div className={styles.tracerComponent}>
+              <Tracer
+                height={
+                  rect.height -
+                  TRACER_CONTROLLER_HEIGHT -
+                  TRACER_PADDING_TOP -
+                  TRACER_PADDING_BOTTOM
+                }
+                calls={calls}
+                showGas={showGas}
+                renderCallGas={(ctx) => <Gas ctx={ctx} />}
+                renderCallCtx={(ctx) => <Evm ctx={ctx} />}
+                renderCallType={(ctx, short) => <Op ctx={ctx} short={short} />}
+                getInputLabel={(val) => labels[val?.toLowerCase()] || null}
+                getOutputLabel={(val) => labels[val?.toLowerCase()] || null}
+                onClickMod={onClickMod}
+                onClickFn={onClickFn}
+                getFnClassName={(call) => {
+                  if (tracer.state.step["trace"] == call.i) {
+                    return styles.fnStep
+                  }
+                  if (tracer.state.step["eth"] == call.i) {
+                    return styles.fnEth
+                  }
+                  return ""
+                }}
+              />
+            </div>
+          </div>
+        )}
+        {(rect, dragging) => (
+          <CanvasGraph
+            disabled={dragging}
+            width={rect.width}
+            height={rect.height}
+            backgroundColor={STYLES.BG_COLOR}
+            groups={groups}
+            calls={calls}
+            tracer={tracer.state}
+            onPointerDown={onPointerDown}
+            step={tracer.state.step["trace"] ?? 0}
+            onStep={(fwd) => tracer.step("trace", fwd)}
+            setStep={(i) => tracer.setStep("trace", i)}
+            getNodeStyle={(hover, node) => {
+              return {
+                fill: getNodeFillColor(
+                  objs,
+                  hover,
+                  node,
+                  graph,
+                  tracer.state,
+                  calls,
+                ),
+                stroke: STYLES.NODE_BORDER_COLOR,
+              }
+            }}
+            getNodeText={(hover, node) => {
+              // TODO: fix
+              // @ts-ignore
+              const obj = objs.get(node.id) as GraphTypes.Obj<ObjType, Account>
+              return {
+                txt: `${obj?.val.name || obj?.val?.addr || "?"}`,
+                top: obj?.type == "acc",
+              }
+            }}
+            getArrowStyle={(hover, arrow) => {
+              const top =
+                hover?.node == arrow.i ||
+                hover?.node == arrow.s ||
+                hover?.node == arrow.e ||
+                hover?.arrows?.has(arrow.i) ||
+                tracer.state.step["trace"] == arrow.i ||
+                tracer.state.step["eth"] == arrow.i ||
+                tracer.state.hover == arrow.i ||
+                tracer.state.pins.has(arrow.i) ||
+                (pinEth && ethIdxSet.has(arrow.i))
+              const t = getArrowType(
+                hover,
+                arrow,
+                tracer.state,
+                pinEth ? ethIdxSet : null,
+              )
+              return {
+                top,
+                style: {
+                  stroke: getArrowColor(t),
+                },
+              }
+            }}
+            renderHover={(hover, mouse) => {
+              if (!mouse) {
+                return null
+              }
+              if (hover.node != null) {
+                const obj = objs.get(hover.node)
+                if (obj?.type == "acc") {
+                  return renderNode(hover.node, false)
+                }
+                if (obj?.type == "fn") {
+                  return renderFn(hover.node)
+                }
+              }
+              if (hover.arrows != null && hover.arrows.size > 0) {
+                return renderArrows(hover.arrows)
+              }
+              return null
+            }}
+          />
+        )}
+      </Splits>
+      <Modal
+        id="tracer"
+        open={!!traceModal}
+        onClose={() => setTraceModal(null)}
+      >
+        {() => renderTraceModal()}
+      </Modal>
+      <Modal id="graph" open={!!graphModal} onClose={() => setGraphModal(null)}>
+        {() => renderGraphModal()}
+      </Modal>
+    </div>
+  )
+}
+
+export default () => {
+  return (
+    <TracerProvider>
+      <TxPage />
+    </TracerProvider>
+  )
+}
