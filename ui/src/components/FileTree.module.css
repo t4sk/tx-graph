@@ -1,0 +1,34 @@
+.component {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 0.875rem;
+  width: 100%;
+}
+.entryRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--color-1);
+  transition: all 0.2s ease-in-out;
+}
+.entryRow:hover {
+  background-color: var(--bg-dim);
+  color: var(--hover-color-1);
+}
+.entryIcon {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 24px;
+}
