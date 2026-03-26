@@ -4,7 +4,6 @@ html {
 }
 
 :root {
-  /* TODO: move to body.light and dark */
   --bg-color: rgb(18, 18, 20);
   --bg-dim-color: rgb(28, 28, 32);
   --bg-dim-hover-color: rgb(42, 42, 50);
