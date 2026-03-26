@@ -1,17 +1,57 @@
 .component {
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
-.row {
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--bg-modal);
+  z-index: 200;
+}
+.headerRow {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
+.main {
+  padding-top: 46px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  height:100%;
+}
+.tree {
+  min-width: 200px;
+  max-width: 200px;
+  overflow: auto;
+}
+.code {
+  position: relative;
+  width: 100%;
+}
+.tools {
+  position: absolute;
+  z-index: 100;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+.codeViewer {
+  position: absolute;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+}
 .col {
   display: flex;
   flex-direction: column;
-}
-.label {
 }
 .blockscan {
   display: flex;
@@ -23,12 +63,6 @@
 }
 .blockscan:hover {
   color: var(--icon-hover-color);
-}
-.val {
-  margin-left: 4px;
-}
-.code {
-  overflow: auto;
 }
 .codeHeader {
   display: flex;
@@ -48,13 +82,6 @@
 }
 .codeName {
   margin-left: 4px;
-}
-.tools {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 6px 0 6px 0;
 }
 .copyBtn {
   margin-right: 6px;

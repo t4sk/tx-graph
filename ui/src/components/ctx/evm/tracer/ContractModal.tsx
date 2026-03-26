@@ -2,16 +2,19 @@ import React, { useEffect, useState, useRef } from "react"
 import { RPC_CONFIG } from "../../../../config"
 import * as api from "../../../../api"
 import useAsync from "../../../../hooks/useAsync"
+import useFileTree from "../../../../hooks/useFileTree"
 import CopyText from "../../../CopyText"
 import Copy from "../../../svg/Copy"
 import Check from "../../../svg/Check"
+import Code from "../../../svg/Code"
 import FullScreen from "../../../svg/FullScreen"
 import FullScreenExit from "../../../svg/FullScreenExit"
-import Chevron from "../../../svg/Chevron"
 import Button from "../../../Button"
+import FileTree, { File } from "../../../FileTree"
 import CodeViewer from "../../../CodeViewer"
-import Code from "../../../svg/Code"
 import styles from "./ContractModal.module.css"
+
+// TODO: hightlight current selected file
 
 const ContractModal: React.FC<{
   ctx: { name?: string; dst: string }
@@ -19,8 +22,8 @@ const ContractModal: React.FC<{
 }> = ({ ctx, chain }) => {
   const getContract = useAsync(api.getContract)
   const [fullScreen, setFullScreen] = useState(false)
-  const [expanded, setExpanded] = useState<Set<number>>(new Set())
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const fileTree = useFileTree()
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => {
@@ -44,89 +47,90 @@ const ContractModal: React.FC<{
     timer.current = setTimeout(() => setCopiedIndex(null), 1500)
   }
 
-  const toggle = (i: number) => {
-    setExpanded((prev) => {
-      const next = new Set(prev)
-      if (next.has(i)) {
-        next.delete(i)
-      } else {
-        next.add(i)
-      }
-      return next
-    })
-  }
+  const blockscan = (
+    RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as { blockscan?: string }
+  )?.blockscan
 
-  const entries = Object.entries(getContract.data?.src || {}).sort(([a], [b]) =>
-    a.split("/").slice(-1)[0].localeCompare(b.split("/").slice(-1)[0]),
+  const files: File[] = Object.entries(getContract.data?.src || {}).map(
+    ([k, v]) => {
+      const parts = k.split("/")
+      const name = parts.slice(-1)?.[0]?.split(".")?.[0]
+
+      return {
+        type: "file",
+        path: k,
+        depth: parts.length,
+        name,
+        data: v,
+      }
+    },
   )
-  const blockscan = (RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as { blockscan?: string })?.blockscan
+  files.push({
+    type: "folder",
+    path: "/",
+    depth: 0,
+    name: "",
+    data: null,
+  })
 
   return (
-    <div className={styles.component}>
-      {ctx.name ? <div className={styles.row}>{ctx.name}</div> : null}
-      <div className={styles.row}>
-        <div className={styles.label}>address: </div>
-        <div className={styles.val}>
+    <div
+      className={styles.component}
+      style={{ height: fullScreen ? "90vh" : 300 }}
+    >
+      <div className={styles.header}>
+        {ctx.name ? <div className={styles.headerRow}>{ctx.name}</div> : null}
+        <div className={styles.headerRow}>
           <CopyText text={ctx.dst} val={ctx.dst} />
+          {blockscan ? (
+            <a
+              className={styles.blockscan}
+              href={`https://vscode.blockscan.com/${blockscan}/${ctx.dst}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Code size={16} />
+            </a>
+          ) : null}
         </div>
-        {blockscan ? (
-          <a
-            className={styles.blockscan}
-            href={`https://vscode.blockscan.com/${blockscan}/${ctx.dst}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Code size={16} />
-          </a>
+      </div>
+      <div className={styles.main}>
+        <div className={styles.tree}>
+          {files.length > 0 ? (
+            <FileTree
+              files={files}
+              open={fileTree.state.open}
+              toggle={fileTree.toggle}
+              onClickFile={fileTree.set}
+            />
+          ) : null}
+        </div>
+        {fileTree.state.file ? (
+          <div className={styles.code}>
+            <div className={styles.tools}>
+              <Button
+                className={styles.copyBtn}
+                onClick={() => copy(fileTree.state.file?.data || "", 0)}
+              >
+                {copiedIndex == 0 ? <Check size={16} /> : <Copy size={16} />}
+              </Button>
+              <Button
+                className={styles.fullScreenBtn}
+                onClick={() => setFullScreen(!fullScreen)}
+              >
+                {fullScreen ? (
+                  <FullScreenExit size={16} />
+                ) : (
+                  <FullScreen size={16} />
+                )}
+              </Button>
+            </div>
+            <div className={styles.codeViewer}>
+              <CodeViewer text={fileTree.state.file?.data || ""} />
+            </div>
+          </div>
         ) : null}
       </div>
-      {entries.length > 0
-        ? entries.map(([k, v], i) => (
-            <div className={styles.col} key={i}>
-              <div className={styles.codeHeader} onClick={() => toggle(i)}>
-                <Chevron
-                  size={14}
-                  className={`${styles.chevron} ${expanded.has(i) ? styles.chevronOpen : ""}`}
-                />
-                <div className={styles.codeName}>
-                  {expanded.has(i) ? k : k.split("/").slice(-1)?.[0]}
-                </div>
-              </div>
-              {expanded.has(i) ? (
-                <>
-                  <div className={styles.tools}>
-                    <Button
-                      className={styles.copyBtn}
-                      onClick={() => copy(v, i)}
-                    >
-                      {copiedIndex == i ? (
-                        <Check size={16} />
-                      ) : (
-                        <Copy size={16} />
-                      )}
-                    </Button>
-                    <Button
-                      className={styles.fullScreenBtn}
-                      onClick={() => setFullScreen(!fullScreen)}
-                    >
-                      {fullScreen ? (
-                        <FullScreenExit size={16} />
-                      ) : (
-                        <FullScreen size={16} />
-                      )}
-                    </Button>
-                  </div>
-                  <div
-                    className={styles.code}
-                    style={{ maxHeight: fullScreen ? "100%" : 300 }}
-                  >
-                    <CodeViewer text={v} />
-                  </div>
-                </>
-              ) : null}
-            </div>
-          ))
-        : null}
     </div>
   )
 }

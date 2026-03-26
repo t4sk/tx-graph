@@ -11,7 +11,7 @@ html {
   --text-hover-color: rgb(250, 250, 250);
   --secondary-text-color: rgb(145, 145, 155);
   --bg-modal-overlay: rgba(110, 118, 129, 0.4);
-  --bg-modal: #161b22;
+  --bg-modal: rgb(28, 28, 32);
   --btn-bg-color: rgb(36, 36, 42);
   --btn-color: white;
 
