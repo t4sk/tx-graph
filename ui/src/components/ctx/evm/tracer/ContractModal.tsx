@@ -65,6 +65,7 @@ const ContractModal: React.FC<{
       }
     },
   )
+
   files.push({
     type: "folder",
     path: "/",

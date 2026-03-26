@@ -56,13 +56,20 @@ function build(files: File[]): Tree | null {
     let i = 1
     while (i < q.length) {
       const f = q[i]
+      let ext = null
+      if (f.type == "file") {
+        const parts = f.path.split(".")
+        if (parts.length > 1) {
+          ext = parts[parts.length - 1]
+        }
+      }
       const t: Tree = {
         type: f.type,
         depth: f.depth,
         name: f.name,
         path: f.path,
         data: f.data,
-        ext: f.type == "file" ? f.path.split(".").slice(-1)[0] : null,
+        ext,
         children: f.type == "folder" ? new Map() : null,
       }
 
@@ -100,11 +107,37 @@ function build(files: File[]): Tree | null {
       i++
     }
 
+    collapse(root)
+
     return root
   } catch (e) {
     console.log("build tree error:", e)
   }
   return null
+}
+
+function collapse(tree: Tree): void {
+  if (!tree.children) {
+    return
+  }
+
+  for (const [key, child] of tree.children) {
+    collapse(child)
+
+    if (child.type == "folder" && child.children?.size == 1) {
+      const [onlyChild] = child.children.values()
+      if (onlyChild.type == "folder") {
+        // Merge: replace child with merged node
+        const merged: Tree = {
+          ...onlyChild,
+          name: `${child.name}/${onlyChild.name}`,
+        }
+        collapse(merged)
+        tree.children.delete(key)
+        tree.children.set(merged.name, merged)
+      }
+    }
+  }
 }
 
 const Entry: React.FC<{
