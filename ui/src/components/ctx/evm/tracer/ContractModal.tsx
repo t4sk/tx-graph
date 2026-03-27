@@ -97,6 +97,7 @@ const ContractModal: React.FC<{
           <div className={styles.tree}>
             {files.length > 0 ? (
               <FileTree
+                curr={fileTree.state.file}
                 files={files}
                 open={fileTree.state.open}
                 toggle={fileTree.toggle}

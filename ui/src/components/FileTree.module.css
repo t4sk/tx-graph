@@ -10,6 +10,10 @@
   font-size: 0.875rem;
   width: 100%;
 }
+.curr {
+  background-color: var(--bg-dim-hover-color);
+  color: var(--text-hover-color);
+}
 .entryRow {
   display: flex;
   flex-direction: row;

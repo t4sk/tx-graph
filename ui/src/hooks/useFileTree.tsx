@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 type File = {
+  path: string
   name: string
   data: string | null
 }

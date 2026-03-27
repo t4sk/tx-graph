@@ -139,24 +139,32 @@ function collapse(tree: Tree): void {
 }
 
 const Entry: React.FC<{
+  curr: {
+    path: string
+    name: string
+    data: string | null
+  } | null
   tree: Tree
   open: boolean
   skip: boolean
   state: { [key: string]: boolean }
   toggle: (tree: Tree) => void
-}> = ({ tree, open, skip, state, toggle }) => {
+}> = ({ curr, tree, open, skip, state, toggle }) => {
   return (
-    <div className={styles.entry}>
+    <div
+      className={`${styles.entry} ${tree.path == curr?.path ? styles.curr : ""}`}
+    >
       {!skip ? (
         <div className={styles.entryRow} onClick={() => toggle(tree)}>
           {tree.name}
         </div>
       ) : null}
-      <div className={styles.entry} style={{ paddingLeft: skip ? 0 : 16 }}>
+      <div className={styles.entry} style={{ paddingLeft: skip ? 0 : 12 }}>
         {open && tree.children
           ? Array.from(tree.children).map(([k, c]) => (
               <Entry
                 key={k}
+                curr={curr}
                 tree={c}
                 open={!!state[c.path]}
                 skip={false}
@@ -171,11 +179,20 @@ const Entry: React.FC<{
 }
 
 const FileTree: React.FC<{
+  curr: {
+    path: string
+    name: string
+    data: string | null
+  } | null
   files: File[]
   open: { [key: string]: boolean }
   toggle: (path: string) => void
-  onClickFile?: (file: { name: string; data: string | null }) => void
-}> = ({ files, open, toggle, onClickFile }) => {
+  onClickFile?: (file: {
+    path: string
+    name: string
+    data: string | null
+  }) => void
+}> = ({ curr, files, open, toggle, onClickFile }) => {
   const root = useMemo(() => build(files), [files.length])
 
   if (!root || !root.children) {
@@ -188,6 +205,7 @@ const FileTree: React.FC<{
     } else {
       if (onClickFile) {
         onClickFile({
+          path: tree.path,
           name: tree.name,
           data: tree.data,
         })
@@ -198,6 +216,7 @@ const FileTree: React.FC<{
   return (
     <div className={styles.component}>
       <Entry
+        curr={curr}
         tree={root}
         open={true}
         skip={true}
