@@ -15,6 +15,7 @@ import CodeViewer from "../../../CodeViewer"
 import styles from "./ContractModal.module.css"
 
 // TODO: hightlight current selected file
+// TODO: find and open contract
 
 const ContractModal: React.FC<{
   ctx: { name?: string; dst: string }
