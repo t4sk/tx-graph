@@ -104,31 +104,33 @@ const ContractModal: React.FC<{
               />
             ) : null}
           </div>
-          {fileTree.state.file ? (
-            <div className={styles.code}>
-              <div className={styles.tools}>
-                <Button
-                  className={styles.copyBtn}
-                  onClick={() => copy(fileTree.state.file?.data || "")}
-                >
-                  {copied ? <Check size={16} /> : <Copy size={16} />}
-                </Button>
-                <Button
-                  className={styles.fullScreenBtn}
-                  onClick={() => setFullScreen(!fullScreen)}
-                >
-                  {fullScreen ? (
-                    <FullScreenExit size={16} />
-                  ) : (
-                    <FullScreen size={16} />
-                  )}
-                </Button>
-              </div>
-              <div className={styles.codeViewer}>
-                <CodeViewer text={fileTree.state.file?.data || ""} />
-              </div>
-            </div>
-          ) : null}
+          <div className={styles.code}>
+            {fileTree.state.file ? (
+              <>
+                <div className={styles.tools}>
+                  <Button
+                    className={styles.copyBtn}
+                    onClick={() => copy(fileTree.state.file?.data || "")}
+                  >
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                  </Button>
+                  <Button
+                    className={styles.fullScreenBtn}
+                    onClick={() => setFullScreen(!fullScreen)}
+                  >
+                    {fullScreen ? (
+                      <FullScreenExit size={16} />
+                    ) : (
+                      <FullScreen size={16} />
+                    )}
+                  </Button>
+                </div>
+                <div className={styles.codeViewer}>
+                  <CodeViewer text={fileTree.state.file?.data || ""} />
+                </div>
+              </>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </div>

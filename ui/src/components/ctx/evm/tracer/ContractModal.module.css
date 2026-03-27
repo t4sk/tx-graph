@@ -32,6 +32,7 @@
 .code {
   position: relative;
   width: 100%;
+  background-color: var(--bg-color);
 }
 .tools {
   position: absolute;
@@ -48,6 +49,9 @@
   overflow: auto;
   height: 100%;
   width: 100%;
+}
+.codeViewer > pre {
+  margin: 0 !important;
 }
 .blockscan {
   display: flex;
