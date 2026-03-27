@@ -28,6 +28,18 @@ function build(files: File[]): Tree | null {
   try {
     const q = [...files]
 
+    if (q.filter((f) => f.depth == 0).length == 0) {
+      q.push({
+        type: "folder",
+        path: "/",
+        depth: 0,
+        name: "",
+        data: null,
+      })
+    } else {
+      assert(q.filter((f) => f.depth == 0).length == 1, "invalid file root")
+    }
+
     // Sort lowest to highest
     // Sort by depth, folder, file and then name
     q.sort((a, b) => {
@@ -39,7 +51,6 @@ function build(files: File[]): Tree | null {
       }
       return a.type == "folder" ? -1 : 1
     })
-    assert(q.filter((f) => f.depth == 0).length == 1, "invalid file root")
 
     const root: Tree = {
       type: q[0].type,
@@ -156,7 +167,7 @@ const Entry: React.FC<{
               {open ? <FolderOpen size={18} /> : <Folder size={18} />}
             </div>
           ) : null}
-          {tree.ext ? `${tree.name}.${tree.ext}` : tree.name}
+          {tree.name}
         </div>
       ) : null}
       <div className={styles.entry} style={{ paddingLeft: skip ? 0 : 16 }}>

@@ -55,11 +55,12 @@ const ContractModal: React.FC<{
   const files: File[] = Object.entries(getContract.data?.src || {}).map(
     ([k, v]) => {
       const parts = k.split("/")
-      const name = parts.slice(-1)?.[0]?.split(".")?.[0]
+      const name = parts.slice(-1)?.[0] || ""
 
       return {
         type: "file",
         path: k,
+        // depth of root path = 0
         depth: parts.length,
         name,
         data: v,
@@ -67,13 +68,7 @@ const ContractModal: React.FC<{
     },
   )
 
-  files.push({
-    type: "folder",
-    path: "/",
-    depth: 0,
-    name: "",
-    data: null,
-  })
+  console.log("files", files)
 
   return (
     <div
