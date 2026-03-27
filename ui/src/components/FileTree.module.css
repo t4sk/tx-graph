@@ -19,16 +19,10 @@
   padding-right: 0.5rem;
   white-space: nowrap;
   cursor: pointer;
-  color: var(--color-1);
+  color: var(--text-color);
   transition: all 0.2s ease-in-out;
 }
 .entryRow:hover {
-  background-color: var(--bg-dim);
-  color: var(--hover-color-1);
-}
-.entryIcon {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  width: 24px;
+  background-color: var(--bg-dim-hover-color);
+  color: var(--text-hover-color);
 }

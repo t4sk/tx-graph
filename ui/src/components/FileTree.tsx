@@ -1,7 +1,5 @@
 import React, { useMemo } from "react"
 import { assert } from "../utils"
-import Folder from "./svg/Folder"
-import FolderOpen from "./svg/FolderOpen"
 import styles from "./FileTree.module.css"
 
 export type FileType = "folder" | "file"
@@ -151,11 +149,6 @@ const Entry: React.FC<{
     <div className={styles.entry}>
       {!skip ? (
         <div className={styles.entryRow} onClick={() => toggle(tree)}>
-          {tree.type == "folder" ? (
-            <div className={styles.entryIcon}>
-              {open ? <FolderOpen size={18} /> : <Folder size={18} />}
-            </div>
-          ) : null}
           {tree.name}
         </div>
       ) : null}
