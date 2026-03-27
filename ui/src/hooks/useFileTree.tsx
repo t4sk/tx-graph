@@ -2,7 +2,6 @@ import { useState } from "react"
 
 type File = {
   name: string
-  ext: string | null
   data: string | null
 }
 

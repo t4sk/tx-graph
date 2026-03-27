@@ -20,7 +20,6 @@ export type Tree = {
   name: string
   path: string
   data: string | null
-  ext: string | null
   children: Map<string, Tree> | null
 }
 
@@ -58,7 +57,6 @@ function build(files: File[]): Tree | null {
       name: q[0].name,
       path: q[0].path,
       data: q[0].data,
-      ext: q[0].type == "file" ? q[0].path.split(".").slice(-1)[0] : null,
       children: q[0].type == "folder" ? new Map() : null,
     }
     const map: Map<string, Tree> = new Map()
@@ -67,20 +65,12 @@ function build(files: File[]): Tree | null {
     let i = 1
     while (i < q.length) {
       const f = q[i]
-      let ext = null
-      if (f.type == "file") {
-        const parts = f.path.split(".")
-        if (parts.length > 1) {
-          ext = parts[parts.length - 1]
-        }
-      }
       const t: Tree = {
         type: f.type,
         depth: f.depth,
         name: f.name,
         path: f.path,
         data: f.data,
-        ext,
         children: f.type == "folder" ? new Map() : null,
       }
 
@@ -99,7 +89,6 @@ function build(files: File[]): Tree | null {
               name: p,
               path: curr,
               data: null,
-              ext: null,
               children: new Map(),
             }
             // @ts-ignore
@@ -192,13 +181,10 @@ const FileTree: React.FC<{
   files: File[]
   open: { [key: string]: boolean }
   toggle: (path: string) => void
-  onClickFile?: (file: {
-    name: string
-    ext: string | null
-    data: string | null
-  }) => void
+  onClickFile?: (file: { name: string; data: string | null }) => void
 }> = ({ files, open, toggle, onClickFile }) => {
-  const root = useMemo(() => build(files), [files])
+  const root = useMemo(() => build(files), [files.length])
+
   if (!root || !root.children) {
     return null
   }
@@ -211,7 +197,6 @@ const FileTree: React.FC<{
         onClickFile({
           name: tree.name,
           data: tree.data,
-          ext: tree.ext,
         })
       }
     }
