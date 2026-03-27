@@ -23,7 +23,7 @@ const ContractModal: React.FC<{
 }> = ({ ctx, chain }) => {
   const getContract = useAsync(api.getContract)
   const [fullScreen, setFullScreen] = useState(false)
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const [copied, setCopied] = useState<boolean>(false)
   const fileTree = useFileTree()
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
 
@@ -38,14 +38,14 @@ const ContractModal: React.FC<{
     }
   }, [])
 
-  const copy = (val: string, i: number) => {
+  const copy = (val: string) => {
     navigator.clipboard.writeText(val)
 
-    setCopiedIndex(i)
+    setCopied(true)
     if (timer.current) {
       clearTimeout(timer.current)
     }
-    timer.current = setTimeout(() => setCopiedIndex(null), 1500)
+    timer.current = setTimeout(() => setCopied(false), 1500)
   }
 
   const blockscan = (
@@ -67,8 +67,6 @@ const ContractModal: React.FC<{
       }
     },
   )
-
-  console.log("files", files)
 
   return (
     <div
@@ -110,9 +108,9 @@ const ContractModal: React.FC<{
             <div className={styles.tools}>
               <Button
                 className={styles.copyBtn}
-                onClick={() => copy(fileTree.state.file?.data || "", 0)}
+                onClick={() => copy(fileTree.state.file?.data || "")}
               >
-                {copiedIndex == 0 ? <Check size={16} /> : <Copy size={16} />}
+                {copied ? <Check size={16} /> : <Copy size={16} />}
               </Button>
               <Button
                 className={styles.fullScreenBtn}
