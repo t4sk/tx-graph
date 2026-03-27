@@ -92,43 +92,45 @@ const ContractModal: React.FC<{
           ) : null}
         </div>
       </div>
-      <div className={styles.main}>
-        <div className={styles.tree}>
-          {files.length > 0 ? (
-            <FileTree
-              files={files}
-              open={fileTree.state.open}
-              toggle={fileTree.toggle}
-              onClickFile={fileTree.set}
-            />
+      {getContract.data ? (
+        <div className={styles.main}>
+          <div className={styles.tree}>
+            {files.length > 0 ? (
+              <FileTree
+                files={files}
+                open={fileTree.state.open}
+                toggle={fileTree.toggle}
+                onClickFile={fileTree.set}
+              />
+            ) : null}
+          </div>
+          {fileTree.state.file ? (
+            <div className={styles.code}>
+              <div className={styles.tools}>
+                <Button
+                  className={styles.copyBtn}
+                  onClick={() => copy(fileTree.state.file?.data || "")}
+                >
+                  {copied ? <Check size={16} /> : <Copy size={16} />}
+                </Button>
+                <Button
+                  className={styles.fullScreenBtn}
+                  onClick={() => setFullScreen(!fullScreen)}
+                >
+                  {fullScreen ? (
+                    <FullScreenExit size={16} />
+                  ) : (
+                    <FullScreen size={16} />
+                  )}
+                </Button>
+              </div>
+              <div className={styles.codeViewer}>
+                <CodeViewer text={fileTree.state.file?.data || ""} />
+              </div>
+            </div>
           ) : null}
         </div>
-        {fileTree.state.file ? (
-          <div className={styles.code}>
-            <div className={styles.tools}>
-              <Button
-                className={styles.copyBtn}
-                onClick={() => copy(fileTree.state.file?.data || "")}
-              >
-                {copied ? <Check size={16} /> : <Copy size={16} />}
-              </Button>
-              <Button
-                className={styles.fullScreenBtn}
-                onClick={() => setFullScreen(!fullScreen)}
-              >
-                {fullScreen ? (
-                  <FullScreenExit size={16} />
-                ) : (
-                  <FullScreen size={16} />
-                )}
-              </Button>
-            </div>
-            <div className={styles.codeViewer}>
-              <CodeViewer text={fileTree.state.file?.data || ""} />
-            </div>
-          </div>
-        ) : null}
-      </div>
+      ) : null}
     </div>
   )
 }
