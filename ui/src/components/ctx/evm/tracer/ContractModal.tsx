@@ -77,7 +77,10 @@ const ContractModal: React.FC<{
   return (
     <div
       className={styles.component}
-      style={{ height: fullScreen ? "90vh" : 300 }}
+      style={{
+        height: fullScreen ? "90vh" : "300px",
+        transition: "height 0.3s ease",
+      }}
     >
       <div className={styles.header}>
         {ctx.name ? <div className={styles.headerRow}>{ctx.name}</div> : null}
