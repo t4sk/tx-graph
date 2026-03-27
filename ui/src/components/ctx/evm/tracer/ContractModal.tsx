@@ -14,9 +14,6 @@ import FileTree, { File } from "../../../FileTree"
 import CodeViewer from "../../../CodeViewer"
 import styles from "./ContractModal.module.css"
 
-// TODO: hightlight current selected file
-// TODO: find and open contract
-
 const ContractModal: React.FC<{
   ctx: { name?: string; dst: string }
   chain: string
@@ -26,27 +23,6 @@ const ContractModal: React.FC<{
   const [copied, setCopied] = useState<boolean>(false)
   const fileTree = useFileTree()
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
-
-  useEffect(() => {
-    if (ctx.dst && chain && chain != "foundry-test") {
-      getContract.exec({ addr: ctx.dst, chain })
-    }
-    return () => {
-      if (timer.current) {
-        clearTimeout(timer.current)
-      }
-    }
-  }, [])
-
-  const copy = (val: string) => {
-    navigator.clipboard.writeText(val)
-
-    setCopied(true)
-    if (timer.current) {
-      clearTimeout(timer.current)
-    }
-    timer.current = setTimeout(() => setCopied(false), 1500)
-  }
 
   const blockscan = (
     RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as { blockscan?: string }
@@ -67,6 +43,37 @@ const ContractModal: React.FC<{
       }
     },
   )
+
+  useEffect(() => {
+    if (ctx.dst && chain && chain != "foundry-test") {
+      getContract.exec({ addr: ctx.dst, chain })
+    }
+    return () => {
+      if (timer.current) {
+        clearTimeout(timer.current)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    const file = files.find((f) => f.name.split(".")[0] == ctx.name)
+    if (file) {
+      if (!fileTree.state.open[file.path]) {
+        fileTree.toggle(file.path)
+        fileTree.set(file)
+      }
+    }
+  }, [files.length])
+
+  const copy = (val: string) => {
+    navigator.clipboard.writeText(val)
+
+    setCopied(true)
+    if (timer.current) {
+      clearTimeout(timer.current)
+    }
+    timer.current = setTimeout(() => setCopied(false), 1500)
+  }
 
   return (
     <div

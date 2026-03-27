@@ -72,7 +72,11 @@ function build(files: File[]): Tree | null {
         children: f.type == "folder" ? new Map() : null,
       }
 
-      const parent = t.path.split("/").slice(0, -1).join("/")
+      let parent = t.path.split("/").slice(0, -1).join("/")
+      if (parent == "") {
+        parent = "/"
+      }
+
       // Create missing parents
       if (!map.has(parent)) {
         const parts = parent.split("/")
@@ -123,12 +127,11 @@ function collapse(tree: Tree): void {
     collapse(child)
 
     if (child.type == "folder" && child.children?.size == 1) {
-      const [onlyChild] = child.children.values()
-      if (onlyChild.type == "folder") {
-        // Merge: replace child with merged node
+      const [v] = child.children.values()
+      if (v.type == "folder") {
         const merged: Tree = {
-          ...onlyChild,
-          name: `${child.name}/${onlyChild.name}`,
+          ...v,
+          name: `${child.name}/${v.name}`,
         }
         collapse(merged)
         tree.children.delete(key)
