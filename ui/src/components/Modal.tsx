@@ -60,9 +60,9 @@ const Modal: React.FC<{
   return (
     <dialog ref={dialogRef} id={id} className={styles.component}>
       <div className={styles.overlay}>
-        <div className={styles.container}>
+        <div className={styles.modal}>
           <div className={styles.content} ref={contentRef}>
-            <div className={styles.children}>{children()}</div>
+            {children()}
           </div>
         </div>
       </div>

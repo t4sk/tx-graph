@@ -21,7 +21,7 @@
 .component[data-open] .overlay {
   opacity: 1;
 }
-.container {
+.modal {
   display: flex;
   height: 100%;
   flex-direction: column;
@@ -30,7 +30,7 @@
   scale: 0.75;
   transition: all 0.2s ease-in-out;
 }
-.component[data-open] .container {
+.component[data-open] .modal {
   scale: 1;
 }
 .content {
@@ -43,13 +43,5 @@
   color: var(--text-hover-color);
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   max-width: calc(100vw - 2rem);
-}
-@media (min-width: 640px) {
-  .content {
-    width: 100%;
-    max-width: none;
-  }
-}
-.children {
   overflow: auto;
 }
