@@ -19,10 +19,11 @@ export function bound(v: number, min: number, max: number): number {
   return Math.min(Math.max(v, min), max)
 }
 
-export function clip(s: string, max: number, half: number = 10): string {
+export function clip(s: string, max: number): string {
   if (s.length <= max) {
     return s
   }
+  const half = Math.floor(max / 2)
   return `${s.slice(0, half)}...${s.slice(-half)}`
 }
 

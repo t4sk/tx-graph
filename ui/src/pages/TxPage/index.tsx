@@ -211,7 +211,7 @@ const GraphNode: React.FC<{
   return (
     <div className={styles.hover}>
       {label ? <div>{label}</div> : null}
-      {addr ? <CopyText text={addr} val={addr} /> : null}
+      {addr ? <CopyText text={addr} val={addr} max={16} /> : null}
       {fns.map((v, i) => (
         <FnDef key={i} name={v.name} inputs={v.inputs} outputs={v.outputs} />
       ))}
@@ -506,7 +506,7 @@ function TxPage() {
                   {renderChainIcon()}
                   <div className={styles.txHashLabel}>TX hash:</div>
                   <div className={styles.txHash}>
-                    <CopyText text={txHash} val={txHash} max={10} />
+                    <CopyText text={txHash} val={txHash} max={16} />
                   </div>
                   <div className={styles.callsCount}>{calls.length} calls</div>
                 </div>
