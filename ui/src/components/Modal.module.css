@@ -6,11 +6,9 @@
   padding: 0;
   margin: 0;
 }
-
 .dialog::backdrop {
   background: transparent;
 }
-
 .overlay {
   position: fixed;
   inset: 0;
@@ -20,32 +18,21 @@
   opacity: 0;
   transition: all 0.2s ease-in-out;
 }
-
 .dialog[data-open] .overlay {
   opacity: 1;
 }
-
 .container {
   display: flex;
   height: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
   scale: 0.75;
   transition: all 0.2s ease-in-out;
 }
-
-@media (min-width: 640px) {
-  .container {
-    padding: 0;
-  }
-}
-
 .dialog[data-open] .container {
   scale: 1;
 }
-
 .content {
   display: flex;
   flex-direction: column;
@@ -57,15 +44,12 @@
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   max-width: calc(100vw - 2rem);
 }
-
 @media (min-width: 640px) {
   .content {
     width: 100%;
     max-width: none;
   }
 }
-
 .children {
   overflow: auto;
 }
-
