@@ -134,11 +134,12 @@
 .hover {
   display: flex;
   flex-direction: column;
-  padding: 8px;
+  padding: 0.5rem;
   border-radius: 4px;
   background-color: var(--bg-dim-color);
   color: var(--text-hover-color);
   font-size: 12px;
+  overflow: auto;
 }
 .addr {
   color: var(--tracer-val-color);
