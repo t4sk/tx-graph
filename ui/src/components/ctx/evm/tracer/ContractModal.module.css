@@ -1,57 +1,16 @@
 .component {
   display: flex;
   flex-direction: column;
-  position: relative;
+  padding: 0.5rem;
   overflow: hidden;
 }
 .header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background-color: var(--bg-modal);
-  z-index: 200;
 }
-.headerRow {
+.row {
   display: flex;
   flex-direction: row;
   align-items: center;
-}
-.main {
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
-  height: 100%;
-  padding-top: 46px;
-}
-.tree {
-  min-width: 200px;
-  max-width: 200px;
-  overflow: auto;
-}
-.code {
-  position: relative;
-  width: 100%;
-  background-color: var(--bg-color);
-}
-.tools {
-  position: absolute;
-  z-index: 100;
-  top: 14px;
-  right: 14px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-}
-.codeViewer {
-  position: absolute;
-  overflow: auto;
-  height: 100%;
-  width: 100%;
-}
-.codeViewer > pre {
-  margin: 0 !important;
+  gap: 0.2rem;
 }
 .blockscan {
   display: flex;
@@ -63,6 +22,37 @@
 }
 .blockscan:hover {
   color: var(--icon-hover-color);
+}
+.main {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+.tree {
+  min-width: 100px;
+  max-width: 200px;
+  height: 100%;
+  overflow: auto;
+}
+.code {
+  overflow: auto;
+  position: relative;
+}
+.tools {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 200;
+}
+.codeViewer {
+  overflow: auto;
+}
+.codeViewer > pre {
+  margin: 0 !important;
 }
 .copyBtn,
 .fullScreenBtn {

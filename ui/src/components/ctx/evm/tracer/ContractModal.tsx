@@ -84,9 +84,9 @@ const ContractModal: React.FC<{
       }}
     >
       <div className={styles.header}>
-        {ctx.name ? <div className={styles.headerRow}>{ctx.name}</div> : null}
-        <div className={styles.headerRow}>
-          <CopyText text={ctx.dst} val={ctx.dst} />
+        <div className={styles.row}>{ctx.name ? ctx.name : null}</div>
+        <div className={styles.row}>
+          <CopyText text={ctx.dst} val={ctx.dst} max={16} />
           {blockscan ? (
             <a
               className={styles.blockscan}
@@ -99,48 +99,44 @@ const ContractModal: React.FC<{
           ) : null}
         </div>
       </div>
-      {getContract.data ? (
-        <div className={styles.main}>
-          <div className={styles.tree}>
-            {files.length > 0 ? (
-              <FileTree
-                curr={fileTree.state.file}
-                files={files}
-                open={fileTree.state.open}
-                toggle={fileTree.toggle}
-                onClickFile={fileTree.set}
-              />
-            ) : null}
-          </div>
-          <div className={styles.code}>
-            {fileTree.state.file ? (
-              <>
-                <div className={styles.tools}>
-                  <Button
-                    className={styles.copyBtn}
-                    onClick={() => copy(fileTree.state.file?.data || "")}
-                  >
-                    {copied ? <Check size={16} /> : <Copy size={16} />}
-                  </Button>
-                  <Button
-                    className={styles.fullScreenBtn}
-                    onClick={() => setFullScreen(!fullScreen)}
-                  >
-                    {fullScreen ? (
-                      <FullScreenExit size={16} />
-                    ) : (
-                      <FullScreen size={16} />
-                    )}
-                  </Button>
-                </div>
-                <div className={styles.codeViewer}>
-                  <CodeViewer text={fileTree.state.file?.data || ""} />
-                </div>
-              </>
-            ) : null}
-          </div>
+      <div className={styles.main}>
+        <div className={styles.tree}>
+          <FileTree
+            curr={fileTree.state.file}
+            files={files}
+            open={fileTree.state.open}
+            toggle={fileTree.toggle}
+            onClickFile={fileTree.set}
+          />
         </div>
-      ) : null}
+        <div className={styles.code}>
+          {fileTree.state.file ? (
+            <>
+              <div className={styles.tools}>
+                <Button
+                  className={styles.copyBtn}
+                  onClick={() => copy(fileTree.state.file?.data || "")}
+                >
+                  {copied ? <Check size={16} /> : <Copy size={16} />}
+                </Button>
+                <Button
+                  className={styles.fullScreenBtn}
+                  onClick={() => setFullScreen(!fullScreen)}
+                >
+                  {fullScreen ? (
+                    <FullScreenExit size={16} />
+                  ) : (
+                    <FullScreen size={16} />
+                  )}
+                </Button>
+              </div>
+              <div className={styles.codeViewer}>
+                <CodeViewer text={fileTree.state.file?.data || ""} />
+              </div>
+            </>
+          ) : null}
+        </div>
+      </div>
     </div>
   )
 }
