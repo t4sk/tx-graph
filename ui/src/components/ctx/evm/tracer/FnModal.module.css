@@ -1,6 +1,8 @@
 .component {
   display: flex;
   flex-direction: column;
+  padding: 0.5rem;
+  overflow: auto;
 }
 .row {
   display: flex;
