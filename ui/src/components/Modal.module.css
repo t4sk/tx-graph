@@ -1,4 +1,4 @@
-.dialog {
+.component {
   background: transparent;
   border: none;
   max-width: 100vw;
@@ -6,7 +6,7 @@
   padding: 0;
   margin: 0;
 }
-.dialog::backdrop {
+.component::backdrop {
   background: transparent;
 }
 .overlay {
@@ -18,7 +18,7 @@
   opacity: 0;
   transition: all 0.2s ease-in-out;
 }
-.dialog[data-open] .overlay {
+.component[data-open] .overlay {
   opacity: 1;
 }
 .container {
@@ -30,7 +30,7 @@
   scale: 0.75;
   transition: all 0.2s ease-in-out;
 }
-.dialog[data-open] .container {
+.component[data-open] .container {
   scale: 1;
 }
 .content {
