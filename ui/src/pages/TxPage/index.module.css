@@ -104,9 +104,6 @@
   padding: 0px 0px 0px 12px;
   overflow-y: hidden;
 }
-.objLabel {
-  color: var(--tracer-obj-color);
-}
 /* Graph */
 .accNode {
   display: flex;
