@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { toast } from "react-toastify"
-import { useParams, useSearchParams } from "react-router-dom"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import JSZip from "jszip"
 import { RPC_CONFIG } from "../../config"
 import * as api from "../../api"
@@ -276,6 +276,7 @@ function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()
   const chain = q.get("chain") || ""
+  const nav = useNavigate()
 
   const app = useAppContext()
   const windowSize = useWindowSizeContext()
@@ -485,11 +486,15 @@ function TxPage() {
       icon?: React.FC<{ size: number }>
     }
     if (!cfg?.icon) {
+      // TODO: return default
       return null
     }
     const Icon = cfg.icon
     return (
-      <div>
+      <div
+        className={styles.chainIcon}
+        onClick={() => nav(`/?${q.toString()}`)}
+      >
         <Icon size={24} />
       </div>
     )

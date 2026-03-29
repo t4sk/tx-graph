@@ -8,7 +8,7 @@ import FoundryForm from "./FoundryForm"
 import styles from "./index.module.css"
 
 export function HomePage() {
-  const navigate = useNavigate()
+  const nav = useNavigate()
   const app = useAppContext()
   const fileWatch = useFileWatchContext()
   const [params, setSearchParams] = useSearchParams()
@@ -38,7 +38,7 @@ export function HomePage() {
       const trace = fileWatch.get("trace")?.[0] || null
       if (trace != null) {
         // Need none empty tx hash for /tx to render
-        navigate(`/tx/0x00?${params.toString()}`)
+        nav(`/tx/0x00?${params.toString()}`)
       }
     } else {
       const txHash = inputs.txHash.trim()
@@ -52,7 +52,7 @@ export function HomePage() {
           app.setEtherscan(etherscan)
         }
 
-        navigate(`/tx/${txHash}?${params.toString()}`)
+        nav(`/tx/${txHash}?${params.toString()}`)
       }
     }
   }
