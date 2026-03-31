@@ -29,10 +29,16 @@
   height: 100%;
 }
 .tree {
-  min-width: 100px;
-  max-width: 200px;
   height: 100%;
   overflow: auto;
+}
+.folder {
+  cursor: pointer;
+  color: var(--icon-color);
+  transition: all 200ms ease-in-out;
+}
+.folder:hover {
+  color: var(--icon-hover-color);
 }
 .code {
   overflow: auto;

@@ -9,6 +9,8 @@ import Check from "../../../svg/Check"
 import Code from "../../../svg/Code"
 import FullScreen from "../../../svg/FullScreen"
 import FullScreenExit from "../../../svg/FullScreenExit"
+import Folder from "../../../svg/Folder"
+import FolderOpen from "../../../svg/FolderOpen"
 import Button from "../../../Button"
 import FileTree, { File } from "../../../FileTree"
 import CodeViewer from "../../../CodeViewer"
@@ -20,6 +22,7 @@ const ContractModal: React.FC<{
 }> = ({ ctx, chain }) => {
   const getContract = useAsync(api.getContract)
   const [fullScreen, setFullScreen] = useState(false)
+  const [fileTreeOpen, setFileTreeOpen] = useState<boolean>(true)
   const [copied, setCopied] = useState<boolean>(false)
   const fileTree = useFileTree()
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
@@ -100,14 +103,36 @@ const ContractModal: React.FC<{
         </div>
       </div>
       <div className={styles.main}>
-        <div className={styles.tree}>
-          <FileTree
-            curr={fileTree.state.file}
-            files={files}
-            open={fileTree.state.open}
-            toggle={fileTree.toggle}
-            onClickFile={fileTree.set}
-          />
+        <div
+          className={styles.tree}
+          style={{
+            minWidth: fileTreeOpen ? 100 : 20,
+            maxWidth: fileTreeOpen ? 300 : 20,
+            transition: "all 0.3s ease",
+          }}
+        >
+          {fileTreeOpen ? (
+            <FolderOpen
+              size={16}
+              className={styles.folder}
+              onClick={() => setFileTreeOpen(false)}
+            />
+          ) : (
+            <Folder
+              size={16}
+              className={styles.folder}
+              onClick={() => setFileTreeOpen(true)}
+            />
+          )}
+          {fileTreeOpen ? (
+            <FileTree
+              curr={fileTree.state.file}
+              files={files}
+              open={fileTree.state.open}
+              toggle={fileTree.toggle}
+              onClickFile={fileTree.set}
+            />
+          ) : null}
         </div>
         <div className={styles.code}>
           {fileTree.state.file ? (
