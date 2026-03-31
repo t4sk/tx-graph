@@ -485,10 +485,11 @@ function TxPage() {
     const cfg = RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as {
       icon?: React.FC<{ size: number }>
     }
+
     if (!cfg?.icon) {
-      // TODO: return default
       return null
     }
+
     const Icon = cfg.icon
     return (
       <div
