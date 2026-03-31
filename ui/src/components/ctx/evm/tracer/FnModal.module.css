@@ -8,9 +8,27 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex-wrap: nowrap;
+  margin-bottom: 0.1rem;
 }
 .label {
+  white-space: nowrap;
 }
 .val {
-  margin-left: 4px;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+.type {
+  color: var(--secondary-text-color);
+}
+.sub {
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+.subHeader {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.4rem;
+}
+.sub > .row {
+  margin-left: 0.5rem;
 }

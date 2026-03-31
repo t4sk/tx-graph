@@ -7,6 +7,7 @@ html {
   --bg-color: rgb(18, 18, 20);
   --bg-dim-color: rgb(28, 28, 32);
   --bg-dim-hover-color: rgb(42, 42, 50);
+  --border-color: rgb(18, 18, 20);
   --text-color: rgb(220, 220, 225);
   --text-hover-color: rgb(250, 250, 250);
   --secondary-text-color: rgb(145, 145, 155);
