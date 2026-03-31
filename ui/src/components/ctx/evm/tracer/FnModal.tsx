@@ -34,7 +34,7 @@ const FnModal: React.FC<{
       {ctx.gas ? (
         <div className={styles.row}>
           <div className={styles.label}>gas: </div>
-          <div className={styles.val}>{ctx.gas}</div>
+          <div className={`${styles.val} ${styles.gas}`}>{ctx.gas}</div>
         </div>
       ) : null}
       {ctx.selector ? (
