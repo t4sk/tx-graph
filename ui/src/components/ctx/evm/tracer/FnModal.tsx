@@ -3,6 +3,7 @@ import CopyText from "../../../CopyText"
 import FnDef from "../../../tracer/FnDef"
 import { FnCall } from "../../../tracer/types"
 import { CallType } from "../types"
+import Gas from "./Gas"
 import Op from "./Op"
 import styles from "./FnModal.module.css"
 
