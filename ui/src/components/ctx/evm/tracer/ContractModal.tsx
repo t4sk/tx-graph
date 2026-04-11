@@ -21,7 +21,7 @@ const ContractModal: React.FC<{
   chain: string
 }> = ({ ctx, chain }) => {
   const getContract = useAsync(api.getContract)
-  const [fullScreen, setFullScreen] = useState(false)
+  const [fullScreen, setFullScreen] = useState(true)
   const [fileTreeOpen, setFileTreeOpen] = useState<boolean>(true)
   const [copied, setCopied] = useState<boolean>(false)
   const fileTree = useFileTree()
