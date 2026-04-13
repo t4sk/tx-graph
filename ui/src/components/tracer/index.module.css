@@ -41,6 +41,7 @@
   color: var(--tracer-index-color);
   transition: background-color 0.2s ease;
   font-variant-numeric: tabular-nums;
+  font-size: 14px;
 }
 .index:hover {
   color: var(--tracer-index-hover-color);
