@@ -1,5 +1,7 @@
 import React, { useMemo } from "react"
 import { assert } from "../utils"
+import Folder from "./svg/Folder"
+import FolderOpen from "./svg/FolderOpen"
 import styles from "./FileTree.module.css"
 
 export type FileType = "folder" | "file"
@@ -109,36 +111,11 @@ function build(files: File[]): Tree | null {
       i++
     }
 
-    collapse(root)
-
     return root
   } catch (e) {
     console.log("build tree error:", e)
   }
   return null
-}
-
-function collapse(tree: Tree): void {
-  if (!tree.children) {
-    return
-  }
-
-  for (const [key, child] of tree.children) {
-    collapse(child)
-
-    if (child.type == "folder" && child.children?.size == 1) {
-      const [v] = child.children.values()
-      if (v.type == "folder") {
-        const merged: Tree = {
-          ...v,
-          name: `${child.name}/${v.name}`,
-        }
-        collapse(merged)
-        tree.children.delete(key)
-        tree.children.set(merged.name, merged)
-      }
-    }
-  }
 }
 
 const Entry: React.FC<{
@@ -159,7 +136,14 @@ const Entry: React.FC<{
     >
       {!skip ? (
         <div className={styles.entryRow} onClick={() => toggle(tree)}>
-          {tree.name}
+          {tree.type == "folder" ? (
+            open ? (
+              <FolderOpen size={16} className={styles.icon} />
+            ) : (
+              <Folder size={16} className={styles.icon} />
+            )
+          ) : null}
+          <span className={styles.name}>{tree.name}</span>
         </div>
       ) : null}
       <div className={styles.entry} style={{ paddingLeft: skip ? 0 : 12 }}>
