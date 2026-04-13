@@ -35,7 +35,6 @@ import { useGetTrace, ObjType } from "../../hooks/useGetTrace"
 import useAsync from "../../hooks/useAsync"
 import styles from "./index.module.css"
 
-// TODO: download file -> split all files
 // TODO: graph - token transfers
 // TODO: error handling
 

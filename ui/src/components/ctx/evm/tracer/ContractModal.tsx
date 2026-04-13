@@ -83,6 +83,7 @@ const ContractModal: React.FC<{
       className={styles.component}
       style={{
         height: fullScreen ? "90vh" : "300px",
+        width: "100vw",
         transition: "height 0.3s ease",
       }}
     >
@@ -106,8 +107,7 @@ const ContractModal: React.FC<{
         <div
           className={styles.tree}
           style={{
-            minWidth: fileTreeOpen ? 100 : 20,
-            maxWidth: fileTreeOpen ? 300 : 20,
+            width: fileTreeOpen ? 200 : 20,
             transition: "all 0.3s ease",
           }}
         >
