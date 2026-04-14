@@ -9,6 +9,7 @@ import Check from "../../../svg/Check"
 import ArrowTopRightOnSquare from "../../../svg/ArrowTopRightOnSquare"
 import FullScreen from "../../../svg/FullScreen"
 import FullScreenExit from "../../../svg/FullScreenExit"
+import Chevron from "../../../svg/Chevron"
 import Folder from "../../../svg/Folder"
 import FolderOpen from "../../../svg/FolderOpen"
 import Button from "../../../Button"
@@ -85,7 +86,7 @@ const ContractModal: React.FC<{
       className={styles.component}
       style={{
         height: fullScreen ? "90vh" : "300px",
-        width: "100vw",
+        width: "90vw",
         transition: "height 0.3s ease",
       }}
     >
@@ -109,23 +110,10 @@ const ContractModal: React.FC<{
         <div
           className={styles.tree}
           style={{
-            width: fileTreeOpen ? 200 : 20,
+            width: fileTreeOpen ? 200 : 0,
             transition: "all 0.3s ease",
           }}
         >
-          {fileTreeOpen ? (
-            <FolderOpen
-              size={16}
-              className={styles.folder}
-              onClick={() => setFileTreeOpen(false)}
-            />
-          ) : (
-            <Folder
-              size={16}
-              className={styles.folder}
-              onClick={() => setFileTreeOpen(true)}
-            />
-          )}
           {fileTreeOpen ? (
             <FileTree
               curr={fileTree.state.file}
@@ -140,6 +128,17 @@ const ContractModal: React.FC<{
           {fileTree.state.file ? (
             <>
               <div className={styles.tools}>
+                <Button
+                  className={styles.chevronBtn}
+                  onClick={() => setFileTreeOpen(!fileTreeOpen)}
+                >
+                  <Chevron
+                    size={16}
+                    className={
+                      fileTreeOpen ? styles.chevronLeft : styles.chevronRight
+                    }
+                  />
+                </Button>
                 <Button
                   className={styles.copyBtn}
                   onClick={() => copy(fileTree.state.file?.data || "")}
