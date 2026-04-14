@@ -6,7 +6,7 @@ import useFileTree from "../../../../hooks/useFileTree"
 import CopyText from "../../../CopyText"
 import Copy from "../../../svg/Copy"
 import Check from "../../../svg/Check"
-import Code from "../../../svg/Code"
+import ArrowTopRightOnSquare from "../../../svg/ArrowTopRightOnSquare"
 import FullScreen from "../../../svg/FullScreen"
 import FullScreenExit from "../../../svg/FullScreenExit"
 import Folder from "../../../svg/Folder"
@@ -27,9 +27,11 @@ const ContractModal: React.FC<{
   const fileTree = useFileTree()
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
 
-  const blockscan = (
-    RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as { blockscan?: string }
-  )?.blockscan
+  const explorer = (
+    RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as {
+      explorer?: (addr: string) => string
+    }
+  )?.explorer
 
   const files: File[] = Object.entries(getContract.data?.src || {}).map(
     ([k, v]) => {
@@ -91,14 +93,14 @@ const ContractModal: React.FC<{
         <div className={styles.row}>{ctx.name ? ctx.name : null}</div>
         <div className={styles.row}>
           <CopyText text={ctx.dst} val={ctx.dst} max={16} />
-          {blockscan ? (
+          {explorer ? (
             <a
-              className={styles.blockscan}
-              href={`https://vscode.blockscan.com/${blockscan}/${ctx.dst}`}
+              className={styles.explorer}
+              href={explorer(ctx.dst)}
               target="_blank"
               rel="noreferrer"
             >
-              <Code size={16} />
+              <ArrowTopRightOnSquare size={16} />
             </a>
           ) : null}
         </div>

@@ -16,13 +16,33 @@ export type RpcConfig = {
   chainId: number
   text: string
   test: boolean
-  blockscan?: string
+  explorer?: (addr: string) => string
   icon?: React.FC<{
     size: number
     color?: string
     className?: string
     onClick?: (e: React.MouseEvent) => void
   }>
+}
+
+const EXPLORERS = {
+  ethereum: "https://etherscan.io",
+  sepolia: "https://sepolia.etherscan.io",
+  arbitrum: "https://arbiscan.io",
+  "arbitrum-sepolia": "https://sepolia.arbiscan.io",
+  base: "https://basescan.org",
+  "base-sepolia": "https://sepolia.basescan.org",
+  "hyperliquid-mainnet": "https://hyperevmscan.io",
+  "monad-mainnet": "https://monad.socialscan.io",
+  "monad-testnet": "https://monad-testnet.socialscan.io",
+  "unichain-mainnet": "https://unichain.blockscout.com/",
+  "unichain-sepolia": "https://unichain-sepolia.blockscout.com/",
+  polygon: "https://polygonscan.com",
+  "polygon-amoy": "https://amoy.polygonscan.com",
+  "optimism-mainnet": "https://optimistic.etherscan.io",
+  "optimism-sepolia": "https://sepolia-optimism.etherscan.io",
+  zksync: "https://explorer.zksync.io",
+  "zksync-sepolia": "https://sepolia.explorer.zksync.io",
 }
 
 export const RPC_CONFIG = {
@@ -38,7 +58,7 @@ export const RPC_CONFIG = {
     chainId: 1,
     text: "ETH",
     test: false,
-    blockscan: "ethereum",
+    explorer: (addr: string) => `${EXPLORERS["ethereum"]}/address/${addr}`,
     icon: Eth,
   },
   "eth-sepolia": {
@@ -46,7 +66,7 @@ export const RPC_CONFIG = {
     chainId: 11155111,
     text: "ETH Sepolia",
     test: true,
-    blockscan: "sepolia",
+    explorer: (addr: string) => `${EXPLORERS["sepolia"]}/address/${addr}`,
     icon: Eth,
   },
   "arb-mainnet": {
@@ -54,7 +74,7 @@ export const RPC_CONFIG = {
     chainId: 42161,
     text: "ARB One",
     test: false,
-    blockscan: "arbitrum",
+    explorer: (addr: string) => `${EXPLORERS["arbitrum"]}/address/${addr}`,
     icon: Arbitrum,
   },
   "arb-sepolia": {
@@ -62,7 +82,8 @@ export const RPC_CONFIG = {
     chainId: 421614,
     text: "ARB Sepolia",
     test: true,
-    blockscan: "arbitrum-sepolia",
+    explorer: (addr: string) =>
+      `${EXPLORERS["arbitrum-sepolia"]}/address/${addr}`,
     icon: Arbitrum,
   },
   "base-mainnet": {
@@ -70,7 +91,7 @@ export const RPC_CONFIG = {
     chainId: 8453,
     text: "Base",
     test: false,
-    blockscan: "base",
+    explorer: (addr: string) => `${EXPLORERS["base"]}/address/${addr}`,
     icon: Base,
   },
   "base-sepolia": {
@@ -78,7 +99,7 @@ export const RPC_CONFIG = {
     chainId: 84532,
     text: "Base Sepolia",
     test: true,
-    blockscan: "base-sepolia",
+    explorer: (addr: string) => `${EXPLORERS["base-sepolia"]}/address/${addr}`,
     icon: Base,
   },
   "hyperliquid-mainnet": {
@@ -86,6 +107,8 @@ export const RPC_CONFIG = {
     chainId: 999,
     text: "Hyperliquid",
     test: false,
+    explorer: (addr: string) =>
+      `${EXPLORERS["hyperliquid-mainnet"]}/address/${addr}`,
     icon: HyperLiquid,
   },
   "monad-mainnet": {
@@ -93,6 +116,7 @@ export const RPC_CONFIG = {
     chainId: 10143,
     text: "Monad",
     test: false,
+    explorer: (addr: string) => `${EXPLORERS["monad-mainnet"]}/address/${addr}`,
     icon: Monad,
   },
   "monad-testnet": {
@@ -100,6 +124,7 @@ export const RPC_CONFIG = {
     chainId: 10143_1,
     text: "Monad Testnet",
     test: true,
+    explorer: (addr: string) => `${EXPLORERS["monad-testnet"]}/address/${addr}`,
     icon: Monad,
   },
   "unichain-mainnet": {
@@ -107,6 +132,8 @@ export const RPC_CONFIG = {
     chainId: 130,
     text: "Unichain",
     test: false,
+    explorer: (addr: string) =>
+      `${EXPLORERS["unichain-mainnet"]}/address/${addr}`,
     icon: Unichain,
   },
   "unichain-sepolia": {
@@ -114,6 +141,8 @@ export const RPC_CONFIG = {
     chainId: 1301,
     text: "Unichain Sepolia",
     test: true,
+    explorer: (addr: string) =>
+      `${EXPLORERS["unichain-sepolia"]}/address/${addr}`,
     icon: Unichain,
   },
   "polygon-mainnet": {
@@ -121,7 +150,7 @@ export const RPC_CONFIG = {
     chainId: 137,
     text: "Polygon",
     test: false,
-    blockscan: "polygon",
+    explorer: (addr: string) => `${EXPLORERS["polygon"]}/address/${addr}`,
     icon: Polygon,
   },
   "polygon-amoy": {
@@ -129,6 +158,7 @@ export const RPC_CONFIG = {
     chainId: 80002,
     text: "Polygon Amoy",
     test: true,
+    explorer: (addr: string) => `${EXPLORERS["polygon-amoy"]}/address/${addr}`,
     icon: Polygon,
   },
   "optimism-mainnet": {
@@ -136,7 +166,8 @@ export const RPC_CONFIG = {
     chainId: 10,
     text: "Optimism",
     test: false,
-    blockscan: "optimistic",
+    explorer: (addr: string) =>
+      `${EXPLORERS["optimism-mainnet"]}/address/${addr}`,
     icon: Optimism,
   },
   "optimism-sepolia": {
@@ -144,7 +175,8 @@ export const RPC_CONFIG = {
     chainId: 11155420,
     text: "Optimism Sepolia",
     test: true,
-    blockscan: "optimism-sepolia",
+    explorer: (addr: string) =>
+      `${EXPLORERS["optimism-sepolia"]}/address/${addr}`,
     icon: Optimism,
   },
   "zksync-mainnet": {
@@ -152,7 +184,7 @@ export const RPC_CONFIG = {
     chainId: 324,
     text: "zkSync",
     test: false,
-    blockscan: "zksync",
+    explorer: (addr: string) => `${EXPLORERS["zksync"]}/address/${addr}`,
     icon: ZkSync,
   },
   "zksync-sepolia": {
@@ -160,7 +192,8 @@ export const RPC_CONFIG = {
     chainId: 300,
     text: "zkSync Sepolia",
     test: true,
-    blockscan: "zksync-sepolia",
+    explorer: (addr: string) =>
+      `${EXPLORERS["zksync-sepolia"]}/address/${addr}`,
     icon: ZkSync,
   },
 }
