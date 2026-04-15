@@ -19,7 +19,6 @@ const FnModal: React.FC<{
   }
   fn: FnCall
 }> = ({ ctx, fn }) => {
-  console.log("CTX", ctx)
   return (
     <div className={styles.component}>
       <div className={styles.row}>
