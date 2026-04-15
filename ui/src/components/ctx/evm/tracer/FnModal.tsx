@@ -10,6 +10,8 @@ import styles from "./FnModal.module.css"
 const FnModal: React.FC<{
   ctx: {
     type: CallType
+    src: string
+    dst: string
     selector?: string
     val?: bigint
     raw?: { input?: string; output?: string }
@@ -17,6 +19,7 @@ const FnModal: React.FC<{
   }
   fn: FnCall
 }> = ({ ctx, fn }) => {
+  console.log("CTX", ctx)
   return (
     <div className={styles.component}>
       <div className={styles.row}>
@@ -29,6 +32,18 @@ const FnModal: React.FC<{
         <div className={styles.label}>type: </div>
         <div className={styles.val}>
           <Op ctx={ctx} />
+        </div>
+      </div>
+      <div className={styles.row}>
+        <div className={styles.label}>src: </div>
+        <div className={styles.val}>
+          <CopyText text={ctx.src} val={ctx.src} />
+        </div>
+      </div>
+      <div className={styles.row}>
+        <div className={styles.label}>dst: </div>
+        <div className={styles.val}>
+          <CopyText text={ctx.dst} val={ctx.dst} />
         </div>
       </div>
       {ctx.gas ? (
@@ -49,7 +64,11 @@ const FnModal: React.FC<{
         <div className={styles.row}>
           <div className={styles.label}>value:</div>
           <div className={styles.val}>
-            <CopyText text={ctx.val.toString()} val={ctx.val.toString()} />
+            <CopyText
+              text={ctx.val.toString()}
+              val={ctx.val.toString()}
+              textClassName={styles.eth}
+            />
           </div>
         </div>
       ) : null}
