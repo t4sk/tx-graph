@@ -1,17 +1,14 @@
 import React, { useEffect, useState, useRef } from "react"
-import { RPC_CONFIG } from "../../../../config"
 import * as api from "../../../../api"
 import useAsync from "../../../../hooks/useAsync"
 import useFileTree from "../../../../hooks/useFileTree"
 import CopyText from "../../../CopyText"
 import Copy from "../../../svg/Copy"
 import Check from "../../../svg/Check"
-import ArrowTopRightOnSquare from "../../../svg/ArrowTopRightOnSquare"
 import FullScreen from "../../../svg/FullScreen"
 import FullScreenExit from "../../../svg/FullScreenExit"
 import Chevron from "../../../svg/Chevron"
-import Folder from "../../../svg/Folder"
-import FolderOpen from "../../../svg/FolderOpen"
+import Explorer from "../../../Explorer"
 import Button from "../../../Button"
 import FileTree, { File } from "../../../FileTree"
 import CodeViewer from "../../../CodeViewer"
@@ -27,12 +24,6 @@ const ContractModal: React.FC<{
   const [copied, setCopied] = useState<boolean>(false)
   const fileTree = useFileTree()
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
-
-  const explorer = (
-    RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as {
-      explorer?: (addr: string) => string
-    }
-  )?.explorer
 
   const files: File[] = Object.entries(getContract.data?.src || {}).map(
     ([k, v]) => {
@@ -94,16 +85,7 @@ const ContractModal: React.FC<{
         <div className={styles.row}>{ctx.name ? ctx.name : null}</div>
         <div className={styles.row}>
           <CopyText text={ctx.dst} val={ctx.dst} max={16} />
-          {explorer ? (
-            <a
-              className={styles.explorer}
-              href={explorer(ctx.dst)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <ArrowTopRightOnSquare size={16} />
-            </a>
-          ) : null}
+          <Explorer chain={chain} addr={ctx.dst} />
         </div>
       </div>
       <div className={styles.main}>

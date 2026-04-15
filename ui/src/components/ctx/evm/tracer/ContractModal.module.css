@@ -12,14 +12,6 @@
   align-items: center;
   gap: 0.2rem;
 }
-.explorer {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  cursor: pointer;
-  color: var(--icon-color);
-  transition: all 200ms ease-in-out;
-}
 .blockscan:hover {
   color: var(--icon-hover-color);
 }

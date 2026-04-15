@@ -1,5 +1,6 @@
 import React from "react"
 import CopyText from "../../../CopyText"
+import Explorer from "../../../Explorer"
 import FnDef from "../../../tracer/FnDef"
 import { FnCall } from "../../../tracer/types"
 import { CallType } from "../types"
@@ -18,7 +19,8 @@ const FnModal: React.FC<{
     gas?: bigint
   }
   fn: FnCall
-}> = ({ ctx, fn }) => {
+  chain: string
+}> = ({ ctx, fn, chain }) => {
   return (
     <div className={styles.component}>
       <div className={styles.row}>
@@ -38,12 +40,14 @@ const FnModal: React.FC<{
         <div className={styles.val}>
           <CopyText text={ctx.src} val={ctx.src} />
         </div>
+        <Explorer chain={chain} addr={ctx.src} />
       </div>
       <div className={styles.row}>
         <div className={styles.label}>dst: </div>
         <div className={styles.val}>
           <CopyText text={ctx.dst} val={ctx.dst} />
         </div>
+        <Explorer chain={chain} addr={ctx.dst} />
       </div>
       {ctx.gas ? (
         <div className={styles.row}>
