@@ -25,6 +25,7 @@ import Gas from "../../components/ctx/evm/tracer/Gas"
 import FnModal from "../../components/ctx/evm/tracer/FnModal"
 import ContractModal from "../../components/ctx/evm/tracer/ContractModal"
 import CopyText from "../../components/CopyText"
+import Explorer from "../../components/Explorer"
 import * as EvmTypes from "../../components/ctx/evm/types"
 import Checkbox from "../../components/Checkbox"
 import Modal from "../../components/Modal"
@@ -205,13 +206,20 @@ function getNodeFillColor(
 
 const GraphNode: React.FC<{
   label?: string
+  details: boolean
   addr?: string
   fns: TracerTypes.FnDef[]
-}> = ({ label, addr, fns }) => {
+  chain: string
+}> = ({ label, details, addr, fns, chain }) => {
   return (
     <div className={styles.hover}>
       {label ? <div>{label}</div> : null}
-      {addr ? <CopyText text={addr} val={addr} max={16} /> : null}
+      {addr ? (
+        <div className={styles.graphNodeAddr}>
+          <CopyText text={addr} val={addr} max={16} disabled={!details} />
+          {details ? <Explorer chain={chain} addr={addr} /> : null}
+        </div>
+      ) : null}
       {fns.map((v, i) => (
         <FnDef key={i} name={v.name} inputs={v.inputs} outputs={v.outputs} />
       ))}
@@ -416,7 +424,15 @@ function TxPage() {
         [...obj?.val?.fns?.values()] || []
       : []
 
-    return <GraphNode label={obj?.val?.name} addr={addr} fns={fns} />
+    return (
+      <GraphNode
+        label={obj?.val?.name}
+        details={details}
+        addr={addr}
+        fns={fns}
+        chain={chain}
+      />
+    )
   }
 
   function renderFn(node: number) {

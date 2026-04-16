@@ -9,7 +9,8 @@ const CopyText: React.FC<{
   val: string
   max?: number
   textClassName?: string
-}> = ({ text, val, max, textClassName = "" }) => {
+  disabled?: boolean
+}> = ({ text, val, max, textClassName = "", disabled }) => {
   const [copied, setCopied] = useState<boolean>(false)
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
 
@@ -36,11 +37,13 @@ const CopyText: React.FC<{
       <div className={`${styles.text} ${textClassName}`}>
         {max ? clip(text, max) : text}
       </div>
-      {copied ? (
-        <Check size={24} className={styles.icon} />
-      ) : (
-        <Copy size={24} className={styles.icon} />
-      )}
+      {!disabled ? (
+        copied ? (
+          <Check size={24} className={styles.icon} />
+        ) : (
+          <Copy size={24} className={styles.icon} />
+        )
+      ) : null}
     </div>
   )
 }

@@ -201,3 +201,8 @@
 .fnEth {
   background-color: rgba(244, 114, 182, 0.1);
 }
+.graphNodeAddr {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
