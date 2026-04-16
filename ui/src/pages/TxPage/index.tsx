@@ -329,15 +329,13 @@ function TxPage() {
     const files = []
     for (const [addr, c] of Object.entries(data ?? {})) {
       if (c?.src) {
-        const flat = Object.entries(c.src)
-          .map(([name, code]) => `// ${name}\n${code}`)
-          .join("\n")
-
-        if (flat.length > 0) {
-          files.push({
-            name: `${c?.name || "?"}_${addr}.sol`,
-            data: flat,
-          })
+        for (const [name, code] of Object.entries(c.src)) {
+          if (code.length > 0) {
+            files.push({
+              path: `${c?.name || "?"}_${addr}/${name}`,
+              data: code,
+            })
+          }
         }
       }
     }
@@ -347,13 +345,13 @@ function TxPage() {
     }
 
     files.push({
-      name: "trace.json",
+      path: "trace.json",
       data: JSON.stringify(getTrace.state.trace.data),
     })
 
     const zip = new JSZip()
     for (const f of files) {
-      zip.file(f.name, f.data)
+      zip.file(f.path, f.data)
     }
 
     // Generate and download zip file
