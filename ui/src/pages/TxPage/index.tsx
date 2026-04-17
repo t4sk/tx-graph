@@ -339,8 +339,15 @@ function TxPage() {
       if (c?.src) {
         for (const [name, code] of Object.entries(c.src)) {
           if (code.length > 0) {
+            // TODO: support for other language ext
+            // Check .sol ext
+            const parts = name.split(".")
+            const last = parts[parts.length - 1]
+            if (last != "sol") {
+              parts[parts.length - 1] = `${last}.sol`
+            }
             files.push({
-              path: `${c?.name || "?"}_${addr}/${name}`,
+              path: `${c?.name || "?"}_${addr}/${parts.join("/")}`,
               data: code,
             })
           }
