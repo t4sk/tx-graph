@@ -347,7 +347,7 @@ function TxPage() {
               parts[parts.length - 1] = `${last}.sol`
             }
             files.push({
-              path: `${c?.name || "?"}_${addr}/${parts.join("/")}`,
+              path: `${c?.name || "?"}_${addr}/${parts.join(".")}`,
               data: code,
             })
           }
