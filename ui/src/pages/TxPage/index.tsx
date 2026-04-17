@@ -534,22 +534,28 @@ function TxPage() {
         {(rect) => (
           <div className={styles.tracer}>
             <div className={styles.tracerController}>
-              <div className={styles.traceControllerLeft}>
+              <div className={styles.traceControllerRow}>
                 <div className={styles.tx}>
                   {renderChainIcon()}
-                  <div className={styles.txHashLabel}>TX hash:</div>
+                  <div className={styles.txHashLabel}>tx:</div>
                   <div className={styles.txHash}>
                     <CopyText text={txHash} val={txHash} max={16} />
                   </div>
                   <div className={styles.callsCount}>{calls.length} calls</div>
                 </div>
+                <div className={styles.contractCount}>
+                  {getTrace.state.q.fetched} / {getTrace.state.q.total}{" "}
+                  contracts
+                </div>
+              </div>
+              <div className={styles.traceControllerRow}>
                 <div className={styles.checkboxes}>
                   <Checkbox
                     className={styles.gasCheckbox}
                     checked={showGas}
                     onChange={onCheckGas}
                   >
-                    Gas
+                    gas
                   </Checkbox>
                   <Checkbox
                     className={styles.ethCheckbox}
@@ -578,12 +584,6 @@ function TxPage() {
                       />
                     </div>
                   )}
-                </div>
-              </div>
-              <div className={styles.traceControllerRight}>
-                <div className={styles.contractCount}>
-                  {getTrace.state.q.fetched} / {getTrace.state.q.total}{" "}
-                  contracts
                 </div>
                 <Button
                   disabled={

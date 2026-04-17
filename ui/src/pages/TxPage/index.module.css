@@ -12,7 +12,7 @@
 }
 .tracerController {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   padding: 10px 12px 4px 12px;
   border-bottom: 1px solid #4b4949;
   box-sizing: border-box;
@@ -22,22 +22,17 @@
   overflow-x: auto;
   overflow-y: hidden;
 }
-.traceControllerLeft {
+.traceControllerRow {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-.traceControllerRight {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  margin-left: auto;
+  flex-direction: row;
+  align-items: center;
 }
 .checkboxes {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 5px;
+  margin-right: auto;
 }
 .ethCheckbox {
   accent-color: #F472B6;
@@ -87,7 +82,7 @@
 }
 .txHashLabel {
   white-space: nowrap;
-  padding-right: 10px;
+  padding-right: 6px;
 }
 .txHash {
   display: flex;
@@ -95,11 +90,14 @@
   color: var(--text-2-color);
 }
 .callsCount {
+  font-size: 14px;
   white-space: nowrap;
 }
 .contractCount {
-  white-space: nowrap;
+  font-size: 14px;
   margin-left: auto;
+  padding-left: 10px;
+  white-space: nowrap;
   color: var(--secondary-text-color);
 }
 .tracerComponent {
