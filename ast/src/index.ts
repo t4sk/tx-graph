@@ -10,42 +10,23 @@ npx ts-node src/index.ts
 npx nodemon --watch src --exec ts-node src/index.ts
 */
 
-function dfs<A>(
-  start: A,
-  get: (a: A) => A[],
-  f: (i: number, d: number, a: A) => void,
-) {
-  const q: [number, A][] = [[0, start]]
-
-  let i = 0
-  while (q.length > 0) {
-    const [d, a] = q.pop() as [number, A]
-
-    f(i, d, a)
-    i++
-
-    const next = get(a)
-    // Reverse
-    for (let j = next.length - 1; j >= 0; j--) {
-      q.push([d + 1, next[j]])
-    }
-  }
-}
-
 async function main() {
   // const files = await readdir("./tmp/Ast.sol")
   // console.log(files)
 
+  // TODO: link imports
   const data = JSON.parse(await readFile("./tmp/Ast.sol/Vault.json", "utf-8"))
 
   // @ts-ignore
   //console.log(data.ast)
 
-  const contracts = findAll("ContractDefinition", data.ast)
+  const contracts = [...findAll("ContractDefinition", data.ast)]
 
   // TODO: inheritance
-
-  const map: Map<number, { id: number; name: string; c3: number[] }> = new Map()
+  const map: Map<
+    number,
+    { id: number; name: string; c3: number[]; depth: number }
+  > = new Map()
   for (const con of contracts) {
     if (!map.has(con.id)) {
       map.set(con.id, {
@@ -53,6 +34,7 @@ async function main() {
         name: con.name,
         // C3 linearized base contracts
         c3: [...con.linearizedBaseContracts],
+        depth: con.linearizedBaseContracts.length - 1,
       })
     }
     console.log(con.name, con.id, con.linearizedBaseContracts)
@@ -60,12 +42,32 @@ async function main() {
 
   console.log("map", map)
 
+  // id => depth
   const depths: Map<number, number> = new Map()
   for (const [k, v] of map) {
-    depths.set(k, v.c3.length - 1)
+    depths.set(k, v.depth)
   }
 
   console.log("depths", depths)
+
+  // depth => [id]
+  const groups: Map<number, number[]> = new Map()
+  for (const [k, v] of map) {
+    const d = v.c3.length - 1
+    if (!groups.has(d)) {
+      groups.set(d, [])
+    }
+    groups.get(d)?.push(k)
+  }
+
+  console.log("groups", groups)
+
+  for (const [k, v] of map) {
+    //
+  }
+  return
+
+  // TODO: inheritance layout
 
   for (const con of contracts) {
     console.log(con.name)
