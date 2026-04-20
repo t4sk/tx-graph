@@ -4,7 +4,7 @@ import * as Types from "./lib/types"
 import * as screen from "./lib/screen"
 import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
-import styles from "./Graph.module.css"
+import styles from "./index.module.css"
 
 const ZOOMS: number[] = [
   0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6,
@@ -134,7 +134,7 @@ export type Props<A, F> = {
   setStep: (i: number) => void
 }
 
-export const Graph = <A, F>({
+export const CallGraph = <A, F>({
   disabled,
   backgroundColor,
   width,

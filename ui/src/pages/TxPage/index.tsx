@@ -13,8 +13,8 @@ import {
   State as TracerState,
 } from "../../contexts/Tracer"
 import Splits from "../../components/Splits"
-import { Graph as CanvasGraph } from "../../components/graph/Graph"
-import * as GraphTypes from "../../components/graph/lib/types"
+import { CallGraph } from "../../components/call-graph"
+import * as GraphTypes from "../../components/call-graph/lib/types"
 import Tracer from "../../components/tracer"
 import * as TracerTypes from "../../components/tracer/types"
 import FnDef from "../../components/tracer/FnDef"
@@ -629,7 +629,7 @@ function TxPage() {
           </div>
         )}
         {(rect, dragging) => (
-          <CanvasGraph
+          <CallGraph
             disabled={dragging}
             width={rect.width}
             height={rect.height}
