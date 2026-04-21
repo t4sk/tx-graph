@@ -1,25 +1,25 @@
-import { Call, Neighbors, Graph } from "./types"
+import { Id, Link, Graph } from "./types"
 import { assert } from "./utils"
 
 // Build adjaceny map
-export function build<A, F>(calls: Call<A, F>[]): Graph {
+export function build(links: Link[]): Graph {
   // dst => sources
-  const incoming: Neighbors = new Map()
+  const incoming: Map<Id, Set<Id>> = new Map()
   // src => destinations
-  const outgoing: Neighbors = new Map()
+  const outgoing: Map<Id, Set<Id>> = new Map()
 
-  for (let i = 0; i < calls.length; i++) {
-    const c = calls[i]
+  for (let i = 0; i < links.length; i++) {
+    const l = links[i]
 
-    if (!outgoing.has(c.src)) {
-      outgoing.set(c.src, new Set())
+    if (!outgoing.has(l.src)) {
+      outgoing.set(l.src, new Set())
     }
-    outgoing.get(c.src)?.add(c.dst)
+    outgoing.get(l.src)?.add(l.dst)
 
-    if (!incoming.has(c.dst)) {
-      incoming.set(c.dst, new Set())
+    if (!incoming.has(l.dst)) {
+      incoming.set(l.dst, new Set())
     }
-    incoming.get(c.dst)?.add(c.src)
+    incoming.get(l.dst)?.add(l.src)
   }
 
   return { incoming, outgoing }

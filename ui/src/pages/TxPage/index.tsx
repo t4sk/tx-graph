@@ -13,8 +13,9 @@ import {
   State as TracerState,
 } from "../../contexts/Tracer"
 import Splits from "../../components/Splits"
+import * as GraphTypes from "../../components/graph/lib/types"
+import * as CallGraphTypes from "../../components/call-graph/lib/types"
 import { CallGraph } from "../../components/call-graph"
-import * as GraphTypes from "../../components/call-graph/lib/types"
 import Tracer from "../../components/tracer"
 import * as TracerTypes from "../../components/tracer/types"
 import FnDef from "../../components/tracer/FnDef"
@@ -157,7 +158,7 @@ function getNodeFillColor(
   node: GraphTypes.Node,
   graph: GraphTypes.Graph,
   tracer: TracerState,
-  calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[],
+  calls: CallGraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[],
 ): string {
   const obj = objs.get(node.id) as GraphTypes.Obj<
     ObjType,
@@ -303,7 +304,7 @@ function TxPage() {
   const [graphModal, setGraphModal] = useState<GraphTypes.Hover | null>(null)
   const [traceModal, setTraceModal] = useState<{
     type: "mod" | "fn"
-    call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>
+    call: CallGraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>
   } | null>(null)
   const batchGetContracts = useAsync(api.batchGetContracts)
 
@@ -414,11 +415,15 @@ function TxPage() {
     setGraphModal(hover)
   }
 
-  function onClickMod(call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>) {
+  function onClickMod(
+    call: CallGraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>,
+  ) {
     setTraceModal({ type: "mod", call })
   }
 
-  function onClickFn(call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>) {
+  function onClickFn(
+    call: CallGraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>,
+  ) {
     setTraceModal({ type: "fn", call })
   }
 

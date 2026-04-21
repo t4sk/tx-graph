@@ -3,14 +3,12 @@
   cursor: crosshair;
   touch-action: none;
 }
-
 .canvas {
   position: absolute;
   left: 0;
   top: 0;
   touch-action: none;
 }
-
 .controls {
   position: absolute;
   bottom: 18px;
@@ -20,7 +18,6 @@
   gap: 8px;
   user-select: none;
 }
-
 .zoom,
 .step {
   display: flex;
@@ -30,7 +27,6 @@
   border-radius: 6px;
   padding: 2px 4px;
 }
-
 .zoom button,
 .step button {
   display: flex;

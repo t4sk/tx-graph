@@ -4,8 +4,9 @@ import * as TxTypes from "../types/tx"
 import * as FileTypes from "../types/file"
 import * as api from "../api"
 import * as TracerTypes from "../components/tracer/types"
-import * as GraphTypes from "../components/call-graph/lib/types"
-import * as graph from "../components/call-graph/lib/graph"
+import * as GraphTypes from "../components/graph/lib/types"
+import * as graph from "../components/graph/lib/graph"
+import * as CallGraphTypes from "../components/call-graph/lib/types"
 import * as foundry from "../foundry"
 import { zip, assert, sleep } from "../utils"
 import * as EvmTypes from "../components/ctx/evm/types"
@@ -20,7 +21,7 @@ export type Data = {
     GraphTypes.Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
   >
   groups: GraphTypes.Groups
-  calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[]
+  calls: CallGraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[]
   trace: TracerTypes.Trace<EvmTypes.Evm>
   graph: GraphTypes.Graph
   labels: Record<string, string>
@@ -189,7 +190,7 @@ function build(
     GraphTypes.Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
   > = new Map()
   const groups: GraphTypes.Groups = new Map()
-  const calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[] = []
+  const calls: CallGraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[] = []
   const stack: TracerTypes.Trace<EvmTypes.Evm>[] = []
 
   // Put initial caller into it's own group
