@@ -86,7 +86,7 @@ const FoundryForm: React.FC<{}> = ({}) => {
         </div>
         {FILE_SYS_ACCESS ? (
           <div className={styles.watch}>
-            <Button onClick={selectTraceFile}>Choose File</Button>
+            <Button onClick={selectTraceFile}>select file</Button>
             <div className={styles.status}>
               {trace ? (
                 <>
@@ -109,7 +109,7 @@ const FoundryForm: React.FC<{}> = ({}) => {
         </div>
         {FILE_SYS_ACCESS ? (
           <div className={styles.watch}>
-            <Button onClick={selectAbiFiles}>Choose File</Button>
+            <Button onClick={selectAbiFiles}>select files</Button>
             <div className={styles.status}>
               {abis.length > 0 ? (
                 <>
