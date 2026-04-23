@@ -2,6 +2,10 @@ html {
   height: 100%;
   width: 100%;
 }
+ul {
+  margin: 0;
+  padding: 0;
+}
 
 :root {
   --bg-color: rgb(18, 18, 20);
