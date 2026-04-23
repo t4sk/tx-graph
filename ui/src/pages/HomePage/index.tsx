@@ -4,6 +4,7 @@ import { useAppContext } from "../../contexts/App"
 import { useFileWatchContext } from "../../contexts/FileWatch"
 import Button from "../../components/Button"
 import ChainSelect from "../../components/ChainSelect"
+import Search from "../../components/svg/Search"
 import FoundryForm from "./FoundryForm"
 import AstForm from "./AstForm"
 import styles from "./index.module.css"
@@ -67,8 +68,12 @@ export function HomePage() {
       if (txHash !== "") {
         const rpc = inputs.rpc.trim()
         const etherscan = inputs.etherscan.trim()
-        if (rpc) app.setRpc(rpc)
-        if (etherscan) app.setEtherscan(etherscan)
+        if (rpc) {
+          app.setRpc(rpc)
+        }
+        if (etherscan) {
+          app.setEtherscan(etherscan)
+        }
         nav(`/tx/${txHash}?${params.toString()}`)
       }
     }
@@ -80,14 +85,14 @@ export function HomePage() {
         <div className={styles.tabs}>
           <button
             type="button"
-            className={`${styles.tab} ${activeTab === "tx" ? styles.tabActive : ""}`}
+            className={`${styles.tab} ${activeTab == "tx" ? styles.tabActive : ""}`}
             onClick={() => onTabChange("tx")}
           >
             tx
           </button>
           <button
             type="button"
-            className={`${styles.tab} ${activeTab === "ast" ? styles.tabActive : ""}`}
+            className={`${styles.tab} ${activeTab == "ast" ? styles.tabActive : ""}`}
             onClick={() => onTabChange("ast")}
           >
             ast
@@ -108,7 +113,9 @@ export function HomePage() {
               {inputs.chain === "foundry-test" ? (
                 <div className={styles.foundrySection}>
                   <FoundryForm />
-                  <Button type="submit">go</Button>
+                  <Button type="submit">
+                    <Search size={16} />
+                  </Button>
                 </div>
               ) : (
                 <>
@@ -123,7 +130,9 @@ export function HomePage() {
                         placeholder="0x..."
                         autoFocus
                       />
-                      <Button type="submit">go</Button>
+                      <Button type="submit">
+                        <Search size={16} />
+                      </Button>
                     </div>
                   </div>
                   <div className={styles.formGroup}>
@@ -156,7 +165,9 @@ export function HomePage() {
           {activeTab === "ast" && (
             <div className={styles.foundrySection}>
               <AstForm />
-              <Button type="submit">go</Button>
+              <Button type="submit">
+                <Search size={16} />
+              </Button>
             </div>
           )}
         </form>
