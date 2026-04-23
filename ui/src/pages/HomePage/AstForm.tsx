@@ -59,7 +59,7 @@ const AstForm: React.FC<{}> = ({}) => {
           {astFiles.length > 0 ? (
             <Check size={16} className={styles.check} />
           ) : null}
-          <div>Upload AST output files</div>
+          <div>Upload AST files</div>
         </div>
         <div className={styles.wrap}>
           <div className={styles.shell}>
