@@ -81,7 +81,7 @@ export function HomePage() {
 
   return (
     <div className={styles.component}>
-      <div className={styles.container}>
+      <div className={styles.main}>
         <div className={styles.tabs}>
           <button
             type="button"
