@@ -1,6 +1,8 @@
 import fs from "fs"
+import path from "path"
+import assert from "assert"
 import { findAll } from "solidity-ast/utils"
-// import { VariableDeclaration } from "solidity-ast"
+import { SourceUnit } from "solidity-ast"
 
 const { readFile, readdir } = fs.promises
 
@@ -11,11 +13,77 @@ npx nodemon --watch src --exec ts-node src/index.ts
 */
 
 async function main() {
-  // const files = await readdir("./tmp/Ast.sol")
-  // console.log(files)
+  const root = "./tmp/dev"
+  const filePaths = [
+    `${root}/Auth.sol/Auth.json`,
+    `${root}/Base.sol/Base.json`,
+    `${root}/Token.sol/Token.json`,
+    `${root}/Vault.sol/Vault.json`,
+  ]
+
+  const json = []
+  for (const filePath of filePaths) {
+    const data = JSON.parse(await readFile(filePath, "utf-8"))
+    json.push({ filePath, data })
+  }
+
+  // SourceUnit id => SourceUnit node
+  const srcMap: Map<number, SourceUnit> = new Map()
+  for (const { data } of json) {
+    const srcUnits = [...findAll("SourceUnit", data.ast)]
+    for (const src of srcUnits) {
+      assert(!srcMap.has(src.id))
+      srcMap.set(src.id, src)
+    }
+  }
+
+  console.log(srcMap)
+
+  for (const { data } of json) {
+    // referenced declaration => source unit
+    const importMap: Map<number, number> = new Map()
+    // https://solidity-ast.info/interfaces/ImportDirective
+    const importDirectives = [...findAll("ImportDirective", data.ast)]
+    // TODO: handle import all without aliase
+    for (const importDir of importDirectives) {
+      for (const sym of importDir.symbolAliases) {
+        const ref = sym.foreign.referencedDeclaration
+        if (ref != undefined) {
+          importMap.set(ref, importDir.sourceUnit)
+        }
+      }
+    }
+    console.log(importMap)
+
+    const contractDefs = [...findAll("ContractDefinition", data.ast)]
+    for (const con of contractDefs) {
+      // https://solidity-ast.info/interfaces/InheritanceSpecifier
+      for (const base of con.baseContracts) {
+        // TODO: if nodeType = "UserDefinedTypeName"
+        if (base.baseName.nodeType == "IdentifierPath") {
+          const ref = base.baseName.referencedDeclaration
+          const srcId = importMap.get(ref)
+          assert(srcId != undefined)
+          const src = srcMap.get(srcId)
+          console.log(srcId, src)
+          //
+        }
+      }
+      for (const id of con.linearizedBaseContracts) {
+        //
+      }
+    }
+  }
+
+  // contract def -> linearizedBaseContracts -> baseContracts referencedDeclaration
+  // TODO: if import all exports?
+  // -> import directive symbolAlias -> referencedDeclaration
+  // or
+  // -> contract definition in the same file?
+  return
 
   // TODO: link imports
-  const data = JSON.parse(await readFile("./tmp/Ast.sol/Vault.json", "utf-8"))
+  const data = JSON.parse(await readFile("./tmp/dev/Vault.json", "utf-8"))
 
   // @ts-ignore
   //console.log(data.ast)
@@ -23,6 +91,7 @@ async function main() {
   const contracts = [...findAll("ContractDefinition", data.ast)]
 
   // TODO: inheritance
+  // ImportDirective, sourceUnit -> ast.id (check nodeType = "SourceUnit")
   const map: Map<
     number,
     { id: number; name: string; c3: number[]; depth: number }
