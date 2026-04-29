@@ -86,7 +86,49 @@ async function main() {
     }
   }
 
+  // console.log(groupByDepth)
+
+  type Contract = {
+    id: number
+    name: string
+    // C3 linearized base contracts
+    parents: number[]
+  }
+
+  const cons: Map<number, Contract> = new Map()
+  for (const [id, con] of idToContractDef) {
+    assert(
+      con.linearizedBaseContracts[0] == id,
+      `invalid linearized base contracts: ${con.linearizedBaseContracts}`,
+    )
+    cons.set(id, {
+      id,
+      name: con.name,
+      // Remove self
+      parents: con.linearizedBaseContracts.slice(1),
+    })
+  }
+
+  // TODO: exports
+  // - group by depth
+  console.log(cons)
   console.log(groupByDepth)
+
+  /*
+     {
+       "39894": { "id": 39894, "name": "Auth", "parents": [39897] },
+       "39897": { "id": 39897, "name": "Base", "parents": [] },
+       "39972": { "id": 39972, "name": "Token", "parents": [39897] },
+       "40013": { "id": 40013, "name": "Vault", "parents": [39894, 39972, 39897] }
+     }
+
+     {
+       "1": [39894, 39972],
+       "0": [39897],
+       "3": [40013]
+     }
+
+  */
 
   return
 
