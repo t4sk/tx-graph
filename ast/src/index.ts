@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 import assert from "assert"
 import { findAll } from "solidity-ast/utils"
-import { SourceUnit } from "solidity-ast"
+import { SourceUnit, ContractDefinition } from "solidity-ast"
 
 const { readFile, readdir } = fs.promises
 
@@ -29,57 +29,65 @@ async function main() {
 
   // SourceUnit id => SourceUnit node
   const srcMap: Map<number, SourceUnit> = new Map()
+  // ContractDefinition id => SourceUnit id
+  const idToSourceUnitId: Map<number, number> = new Map()
+  // ContractDefinition id => ContractDefinition
+  const idToContractDef: Map<number, ContractDefinition> = new Map()
+  // ContractDefinition id => depth
+  const idToDepth: Map<number, number> = new Map()
+  // Group by depth (ContractDefinition ids)
+  const groupByDepth: Map<number, Set<number>> = new Map()
+
   for (const { data } of json) {
+    // Map SourceUnit id to SourceUnit
     const srcUnits = [...findAll("SourceUnit", data.ast)]
     for (const src of srcUnits) {
       assert(!srcMap.has(src.id))
       srcMap.set(src.id, src)
     }
-  }
 
-  console.log(srcMap)
-
-  for (const { data } of json) {
-    // referenced declaration => source unit
-    const importMap: Map<number, number> = new Map()
-    // https://solidity-ast.info/interfaces/ImportDirective
+    // Map id => SourceUnit id
     const importDirectives = [...findAll("ImportDirective", data.ast)]
-    // TODO: handle import all without aliase
     for (const importDir of importDirectives) {
       for (const sym of importDir.symbolAliases) {
         const ref = sym.foreign.referencedDeclaration
         if (ref != undefined) {
-          importMap.set(ref, importDir.sourceUnit)
+          if (idToSourceUnitId.has(ref)) {
+            const sourceUnitId = idToSourceUnitId.get(ref)
+            assert(
+              sourceUnitId == importDir.sourceUnit,
+              `ref: ${ref} != source unit: ${sourceUnitId}`,
+            )
+          }
+          idToSourceUnitId.set(ref, importDir.sourceUnit)
         }
       }
     }
-    console.log(importMap)
 
+    // Map id to ContractDefinition and contract depth
     const contractDefs = [...findAll("ContractDefinition", data.ast)]
     for (const con of contractDefs) {
-      // https://solidity-ast.info/interfaces/InheritanceSpecifier
-      for (const base of con.baseContracts) {
-        // TODO: if nodeType = "UserDefinedTypeName"
-        if (base.baseName.nodeType == "IdentifierPath") {
-          const ref = base.baseName.referencedDeclaration
-          const srcId = importMap.get(ref)
-          assert(srcId != undefined)
-          const src = srcMap.get(srcId)
-          console.log(srcId, src)
-          //
-        }
+      assert(
+        !idToContractDef.has(con.id),
+        `contract already set name: ${con.name} id: ${con.id}`,
+      )
+      idToContractDef.set(con.id, con)
+
+      const depth = con.linearizedBaseContracts.length - 1
+      idToDepth.set(con.id, depth)
+
+      if (!groupByDepth.has(depth)) {
+        groupByDepth.set(depth, new Set())
       }
-      for (const id of con.linearizedBaseContracts) {
-        //
-      }
+      const set = groupByDepth.get(depth)
+      assert(set != undefined, `set at depth: ${depth} is undefined`)
+      assert(!set.has(con.id), `already in set id: ${con.id}`)
+      set.add(con.id)
     }
   }
 
-  // contract def -> linearizedBaseContracts -> baseContracts referencedDeclaration
-  // TODO: if import all exports?
-  // -> import directive symbolAlias -> referencedDeclaration
-  // or
-  // -> contract definition in the same file?
+  console.log(groupByDepth)
+
   return
 
   // TODO: link imports
