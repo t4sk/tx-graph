@@ -6,6 +6,7 @@ import { Provider as WindowSizeProvider } from "./contexts/WindowSize"
 import { Provider as FileWatchProvider } from "./contexts/FileWatch"
 import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
+import AstPage from "./pages/AstPage"
 
 // React devtools calls JSON.stringify on component props for profiling
 // @ts-ignore
@@ -25,6 +26,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="tx/:txHash" element={<TxPage />} />
+        <Route path="ast" element={<AstPage />} />
       </Routes>
     </BrowserRouter>
   )
