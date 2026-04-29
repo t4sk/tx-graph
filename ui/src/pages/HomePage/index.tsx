@@ -49,32 +49,32 @@ export function HomePage() {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (activeTab === "ast") {
+    if (activeTab == "ast") {
       const astFiles = fileWatch.get("ast")
       if (astFiles.length > 0) {
-        nav(`/ast/0x00?${params.toString()}`)
+        nav("/ast")
       }
-      return
     }
 
-    // tx tab
-    if (inputs.chain === "foundry-test") {
-      const trace = fileWatch.get("trace")?.[0] || null
-      if (trace != null) {
-        nav(`/tx/0x00?${params.toString()}`)
-      }
-    } else {
-      const txHash = inputs.txHash.trim()
-      if (txHash !== "") {
-        const rpc = inputs.rpc.trim()
-        const etherscan = inputs.etherscan.trim()
-        if (rpc) {
-          app.setRpc(rpc)
+    if (activeTab == "tx") {
+      if (inputs.chain == "foundry-test") {
+        const trace = fileWatch.get("trace")?.[0] || null
+        if (trace != null) {
+          nav(`/tx/0x00?${params.toString()}`)
         }
-        if (etherscan) {
-          app.setEtherscan(etherscan)
+      } else {
+        const txHash = inputs.txHash.trim()
+        if (txHash != "") {
+          const rpc = inputs.rpc.trim()
+          const etherscan = inputs.etherscan.trim()
+          if (rpc) {
+            app.setRpc(rpc)
+          }
+          if (etherscan) {
+            app.setEtherscan(etherscan)
+          }
+          nav(`/tx/${txHash}?${params.toString()}`)
         }
-        nav(`/tx/${txHash}?${params.toString()}`)
       }
     }
   }
@@ -100,7 +100,7 @@ export function HomePage() {
         </div>
 
         <form onSubmit={onSubmit} className={styles.form}>
-          {activeTab === "tx" && (
+          {activeTab == "tx" && (
             <>
               <div className={styles.formGroup}>
                 <label className={styles.label}>network</label>
@@ -110,7 +110,7 @@ export function HomePage() {
                 />
               </div>
 
-              {inputs.chain === "foundry-test" ? (
+              {inputs.chain == "foundry-test" ? (
                 <div className={styles.foundrySection}>
                   <FoundryForm />
                   <Button type="submit">
@@ -162,7 +162,7 @@ export function HomePage() {
             </>
           )}
 
-          {activeTab === "ast" && (
+          {activeTab == "ast" && (
             <div className={styles.foundrySection}>
               <AstForm />
               <Button type="submit">

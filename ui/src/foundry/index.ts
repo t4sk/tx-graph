@@ -255,7 +255,7 @@ export function getContracts(
                   }
                   // Fuzzy match - zero out immutable byte ranges then compare
                   for (const entry of immutableBytecodes) {
-                    if (a.trace.output.length !== entry.bytecode.length) {
+                    if (a.trace.output.length != entry.bytecode.length) {
                       continue
                     }
                     const masked = mask(a.trace.output, entry.refs)
@@ -328,20 +328,23 @@ export function getContracts(
     }
   }
 
-  return [...precompiles, ...addrs.map((addr) => {
-    const val = addrToAbi.get(addr)
-    if (val) {
-      return {
-        chain: "foundry-test",
-        address: addr,
-        name: val.name,
-        abi: val.abi || null,
+  return [
+    ...precompiles,
+    ...addrs.map((addr) => {
+      const val = addrToAbi.get(addr)
+      if (val) {
+        return {
+          chain: "foundry-test",
+          address: addr,
+          name: val.name,
+          abi: val.abi || null,
+        }
+      } else {
+        return {
+          chain: "foundry-test",
+          address: addr,
+        }
       }
-    } else {
-      return {
-        chain: "foundry-test",
-        address: addr,
-      }
-    }
-  })]
+    }),
+  ]
 }

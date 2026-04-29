@@ -435,14 +435,14 @@ export const Graph = <A,>({
   }
 
   const _onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (e.touches.length === 2) {
+    if (e.touches.length == 2) {
       // Pinch gesture started
       e.preventDefault()
 
       const dist = getTouchDistance(e)
       const center = getTouchCenter(refs.current?.ui, e)
 
-      if (refs.current && dist !== null && center !== null) {
+      if (refs.current && dist != null && center != null) {
         refs.current.lastPinchDistance = dist
         refs.current.pinchCenter = center
         // Clear drag state when pinch starts
@@ -452,7 +452,7 @@ export const Graph = <A,>({
   }
 
   const _onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (e.touches.length === 2 && refs.current) {
+    if (e.touches.length == 2 && refs.current) {
       // Pinch zoom
       e.preventDefault()
 
@@ -462,7 +462,7 @@ export const Graph = <A,>({
       if (
         dist !== null &&
         center !== null &&
-        refs.current.lastPinchDistance !== null
+        refs.current.lastPinchDistance != null
       ) {
         const distanceChange = dist - refs.current.lastPinchDistance
         const threshold = 10 // Minimum dist change to trigger zoom

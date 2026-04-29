@@ -32,7 +32,7 @@ export default function ChainSelect({ value, onChange }: Props) {
     <button
       key={key}
       type="button"
-      className={`${styles.option} ${key === value ? styles.optionSelected : ""}`}
+      className={`${styles.option} ${key == value ? styles.optionSelected : ""}`}
       onClick={() => {
         onChange(key)
         setOpen(false)
