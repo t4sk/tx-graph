@@ -18,15 +18,15 @@ function AstPage() {
   }
 
   const contracts = new Map([
-    [39894, { id: 39894, name: "Auth", parents: new Set([39897]) }],
-    [39897, { id: 39897, name: "Base", parents: new Set([]) }],
-    [39972, { id: 39972, name: "Token", parents: new Set([39897]) }],
+    [39894, { id: 39894, name: "Auth", parents: [39897] }],
+    [39897, { id: 39897, name: "Base", parents: [] }],
+    [39972, { id: 39972, name: "Token", parents: [39897] }],
     [
       40013,
       {
         id: 40013,
         name: "Vault",
-        parents: new Set([39894, 39972, 39897]),
+        parents: [39894, 39972, 39897],
       },
     ],
   ])

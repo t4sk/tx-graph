@@ -25,7 +25,7 @@ export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
   const groupByDepth: Map<number, Set<Id>> = new Map()
   let maxDepth = 0
   for (const [id, con] of contracts) {
-    const d = con.parents.size
+    const d = con.parents.length
     if (!groupByDepth.has(d)) {
       groupByDepth.set(d, new Set())
     }
@@ -67,14 +67,13 @@ export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
   topAtDepth.set(0, top)
   {
     let t = top
-    let h = maxHeightAtDepth.get(0) || 0
     for (let d = 0; d <= maxDepth; d++) {
+      let h = 0
       const v = maxHeightAtDepth.get(d)
       if (v) {
         h = v + screen.node.gap.y
-      } else {
-        h = 0
       }
+
       if (d <= maxDepth) {
         topAtDepth.set(d + 1, t + h)
         t += h
@@ -102,6 +101,7 @@ export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
     }
   }
 
+  // TODO: remove, fix arrows
   console.log("CON", contracts)
   console.log("GROUP", groupByDepth)
   console.log("top", topAtDepth)
