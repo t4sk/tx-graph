@@ -115,14 +115,14 @@ export function map<A, F>(
   // Position nodes to center of the screen
   let xMax = 0
   let yMax = 0
-  for (const [_, node] of nodes) {
+  for (const [, node] of nodes) {
     xMax = Math.max(xMax, getMidPoints(node.rect).right.x)
     yMax = Math.max(yMax, getMidPoints(node.rect).bottom.y)
   }
 
   const x0 = screen.center.x - (xMax >> 1)
   const y0 = screen.center.y - (yMax >> 1)
-  for (const [_, node] of nodes) {
+  for (const [, node] of nodes) {
     node.rect.x += x0
     node.rect.y += y0
   }

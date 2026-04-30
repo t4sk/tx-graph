@@ -5,6 +5,7 @@ import * as Types from "./lib/types"
 import * as screen from "./lib/screen"
 
 // TODO: fix graph type
+// @ts-ignore
 export type Props<A, F> = Omit<GraphProps<Types.Call<A, F>>, "layout"> & {
   nodeWidth?: number
   nodeHeight?: number
@@ -21,21 +22,29 @@ export const AstGraph = <A, F>(props: Props<A, F>) => {
     nodeYGap = 50,
   } = props
 
-  const contracts = {
-    "39894": { id: 39894, name: "Auth", parents: [39897] },
-    "39897": { id: 39897, name: "Base", parents: [] },
-    "39972": { id: 39972, name: "Token", parents: [39897] },
-    "40013": { id: 40013, name: "Vault", parents: [39894, 39972, 39897] },
-  }
+  const contracts = new Map([
+    [39894, { id: 39894, name: "Auth", parents: new Set([39897]) }],
+    [39897, { id: 39897, name: "Base", parents: new Set([]) }],
+    [39972, { id: 39972, name: "Token", parents: new Set([39897]) }],
+    [
+      40013,
+      {
+        id: 40013,
+        name: "Vault",
+        parents: new Set([39894, 39972, 39897]),
+      },
+    ],
+  ])
 
   const groupByDepth = {
     "1": [39894, 39972],
     "0": [39897],
     "3": [40013],
   }
-  /*
+
   const layout = useMemo(() => {
-    return screen.map(groups, calls, {
+    // @ts-ignore
+    return screen.map(contracts, {
       width,
       height,
       center: {
@@ -53,19 +62,7 @@ export const AstGraph = <A, F>(props: Props<A, F>) => {
     })
   }, [width, height])
 
-        layout={{
-          rect: {
-            x: 0,
-            y: 0,
-            width: 100,
-            height: 200,
-          },
-          nodes: new Map(),
-          arrows: [],
-          rev: new Map(),
-        }}
+  console.log("LAYOUTS", layout)
 
   return <Graph {...props} layout={layout} />
-  */
-  return "TODO"
 }

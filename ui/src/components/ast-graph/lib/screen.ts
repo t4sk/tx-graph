@@ -1,18 +1,14 @@
-import { Id, Groups, Arrow, Screen, Node, Layout } from "../../graph/lib/types"
-import { getMidPoints, arrow } from "../../graph/lib/screen"
-import { assert } from "../../graph/lib/utils"
+import { Id, Arrow, Screen, Node, Layout } from "../../graph/lib/types"
+import { arrow } from "../../graph/lib/screen"
 import { Contract } from "./types"
 
-export function map<A, F>(
-  contracts: Map<number, Contract>,
-  screen: Screen,
-): Layout {
+export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
   const nodes: Map<Id, Node> = new Map()
   // TODO: Reverse look up
   const rev: Map<Id, Id> = new Map()
 
-  // Calculate group width and height
-  for (const [id, con] of contracts) {
+  // Initialize nodes
+  for (const [id] of contracts) {
     nodes.set(id, {
       id,
       rect: {
@@ -25,29 +21,107 @@ export function map<A, F>(
     })
   }
 
-  /*
-  group by depth
-  find max depth = num iters <- max depth
-  find width <- max length of group in depth * node width
-  find height = sum max height per depth
-  calc center x, y
-  position nodes
-  draw nodes
-  draw arrows
-  */
+  // Group by depth
+  const groupByDepth: Map<number, Set<Id>> = new Map()
+  let maxDepth = 0
+  for (const [id, con] of contracts) {
+    const d = con.parents.size
+    if (!groupByDepth.has(d)) {
+      groupByDepth.set(d, new Set())
+    }
+    groupByDepth.get(d)!.add(id)
+    maxDepth = Math.max(d, maxDepth)
+  }
 
+  // Find width
+  let maxNodes = 0
+  for (const [, ids] of groupByDepth) {
+    maxNodes = Math.max(ids.size, maxNodes)
+  }
+  const width =
+    maxNodes > 0
+      ? maxNodes * screen.node.width + (maxNodes - 1) * screen.node.gap.x
+      : 0
+
+  // Find max height at each depth
+  let height = 0
+  const maxHeightAtDepth: Map<number, number> = new Map()
+  for (const [d, ids] of groupByDepth) {
+    let h = 0
+    for (const id of ids) {
+      const node = nodes.get(id)!
+      h = Math.max(node.rect.height, h)
+    }
+    maxHeightAtDepth.set(d, h)
+    height += h
+    if (d < maxDepth) {
+      height += screen.node.gap.y
+    }
+  }
+
+  // Calculates top and left and bounds all nodes
+  const left = screen.center.x - (width >> 1)
+  const top = screen.center.y - (height >> 1)
+
+  const topAtDepth: Map<number, number> = new Map()
+  topAtDepth.set(0, top)
+  {
+    let t = top
+    let h = maxHeightAtDepth.get(0) || 0
+    for (let d = 0; d <= maxDepth; d++) {
+      const v = maxHeightAtDepth.get(d)
+      if (v) {
+        h = v + screen.node.gap.y
+      } else {
+        h = 0
+      }
+      if (d <= maxDepth) {
+        topAtDepth.set(d + 1, t + h)
+        t += h
+      }
+    }
+  }
+
+  // Position nodes
+  for (let d = 0; d <= maxDepth; d++) {
+    const ids = groupByDepth.get(d)
+    if (!ids) {
+      continue
+    }
+
+    const n = ids.size
+    const width = n * screen.node.width + (n - 1) * screen.node.gap.x
+
+    let x = screen.center.x - (width >> 1)
+    const y = topAtDepth.get(d)!
+    for (const id of ids) {
+      const node = nodes.get(id)!
+      node.rect.x = x
+      node.rect.y = y
+      x += screen.node.width + screen.node.gap.x
+    }
+  }
+
+  console.log("CON", contracts)
+  console.log("GROUP", groupByDepth)
+  console.log("top", topAtDepth)
+  console.log("nodes", nodes)
+
+  // Position arrows
   const arrows: Arrow[] = []
-  for (let i = 0; i < calls.length; i++) {
-    const c = calls[i]
-    arrows.push(arrow(nodes, i, c.src, c.dst))
+  for (const [id, con] of contracts) {
+    for (const p of con.parents) {
+      const i = arrows.length
+      arrows.push(arrow(nodes, i, p, id))
+    }
   }
 
   return {
     rect: {
-      x: x0,
-      y: y0,
-      width: xMax,
-      height: yMax,
+      x: left,
+      y: top,
+      width,
+      height,
     },
     nodes,
     arrows,
