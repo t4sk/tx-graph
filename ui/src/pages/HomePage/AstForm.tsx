@@ -15,6 +15,7 @@ const AstForm: React.FC<{}> = ({}) => {
   const fileWatch = useFileWatchContext()
   const astFiles = fileWatch.get("ast")
 
+  // TODO: no need to use filewatch?
   const selectAstFiles = async () => {
     try {
       // @ts-ignore

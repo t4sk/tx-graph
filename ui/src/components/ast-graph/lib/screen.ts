@@ -1,151 +1,40 @@
 import { Id, Groups, Arrow, Screen, Node, Layout } from "../../graph/lib/types"
 import { getMidPoints, arrow } from "../../graph/lib/screen"
 import { assert } from "../../graph/lib/utils"
-import { Call } from "./types"
+import { Contract } from "./types"
 
 export function map<A, F>(
-  groups: Groups,
-  calls: Call<A, F>[],
+  contracts: Map<number, Contract>,
   screen: Screen,
 ): Layout {
   const nodes: Map<Id, Node> = new Map()
-  // Reverse look up call.src or call.dst to group id
+  // TODO: Reverse look up
   const rev: Map<Id, Id> = new Map()
 
   // Calculate group width and height
-  for (const [g, fs] of groups) {
-    const node = {
-      id: g,
+  for (const [id, con] of contracts) {
+    nodes.set(id, {
+      id,
       rect: {
         x: 0,
         y: 0,
         width: screen.node.width,
-        height: screen.node.height * (fs.size + 1),
+        // TODO: height calculated from funcs + state vars
+        height: screen.node.height,
       },
-    }
-    nodes.set(g, node)
-
-    for (const f of fs.values()) {
-      rev.set(f, g)
-    }
+    })
   }
 
-  // Calculate group x position based on min call depth
-  // Calculate group y position based on call index
-  // Group id => depth
-  const xOffsets: Map<Id, number> = new Map()
-  // Depth => y offset
-  const yOffsets: Map<number, number> = new Map()
-
-  for (let i = 0; i < calls.length; i++) {
-    const c = calls[i]
-    // src and dst group ids (src for i = 0, is not a function)
-    const src = (i == 0 ? c.src : rev.get(c.src)) as Id
-    const dst = rev.get(c.dst) as Id
-    assert(src != undefined, `missing group for src ${c.src}`)
-    assert(dst != undefined, `missing group for dst ${c.dst}`)
-
-    if (!xOffsets.has(src)) {
-      const d = c.depth
-      xOffsets.set(src, d)
-
-      const node = nodes.get(src) as Node
-      const x0 = d * (node.rect.width + screen.node.gap.x)
-      const y0 = yOffsets.get(d) ?? 0
-      node.rect.x = x0
-      node.rect.y = y0
-
-      // Next node at this depth is rendered below this node
-      const y1 = y0 + node.rect.height + screen.node.gap.y
-      yOffsets.set(d, y1)
-      // Nodes to be rendered at next depth is aligned to this node's top y position
-      yOffsets.set(d + 1, Math.max(yOffsets.get(d + 1) ?? 0, y0))
-      // Nodes to be rendered at previous depths are shifted up to
-      // this node's bottom y position or yMax
-      let yMax = y0
-      for (let i = 0; i <= d - 1; i++) {
-        yMax = Math.max(yOffsets.get(i) ?? 0, yMax)
-      }
-      for (let i = 0; i <= d - 1; i++) {
-        yOffsets.set(i, yMax)
-      }
-    }
-    if (!xOffsets.has(dst)) {
-      const d = c.depth + 1
-      xOffsets.set(dst, d)
-
-      const node = nodes.get(dst) as Node
-      const x0 = d * (node.rect.width + screen.node.gap.x)
-      const y0 = yOffsets.get(d) ?? 0
-      node.rect.x = x0
-      node.rect.y = y0
-
-      // Same algorithm as yOffsets for src
-      const y1 = y0 + node.rect.height + screen.node.gap.y
-      yOffsets.set(d, y1)
-      yOffsets.set(d + 1, Math.max(yOffsets.get(d + 1) ?? 0, y0))
-
-      let yMax = y0
-      for (let i = 0; i <= d - 1; i++) {
-        yMax = Math.max(yOffsets.get(i) ?? 0, yMax)
-      }
-      for (let i = 0; i <= d - 1; i++) {
-        yOffsets.set(i, yMax)
-      }
-    }
-  }
-
-  // Compact x positions - remove empty depth columns
-  const usedDepths = [...new Set(xOffsets.values())].sort((a, b) => a - b)
-  const depthToCol: Map<number, number> = new Map()
-  for (let i = 0; i < usedDepths.length; i++) {
-    depthToCol.set(usedDepths[i], i)
-  }
-  for (const [g, d] of xOffsets) {
-    const col = depthToCol.get(d) as number
-    const node = nodes.get(g) as Node
-    node.rect.x = col * (node.rect.width + screen.node.gap.x)
-  }
-
-  // Shift initial caller's y position down by 1 node height
-  if (calls.length > 0) {
-    const node = nodes.get(calls[0].src) as Node
-    node.rect.y += screen.node.height
-  }
-
-  // Position nodes to center of the screen
-  let xMax = 0
-  let yMax = 0
-  for (const [_, node] of nodes) {
-    xMax = Math.max(xMax, getMidPoints(node.rect).right.x)
-    yMax = Math.max(yMax, getMidPoints(node.rect).bottom.y)
-  }
-
-  const x0 = screen.center.x - (xMax >> 1)
-  const y0 = screen.center.y - (yMax >> 1)
-  for (const [_, node] of nodes) {
-    node.rect.x += x0
-    node.rect.y += y0
-  }
-
-  // Calculate function positions
-  for (const [g, fs] of groups) {
-    const group = nodes.get(g) as Node
-    assert(group != undefined, `group undefined: ${g}`)
-    let i = 0
-    for (const f of fs) {
-      nodes.set(f, {
-        id: f,
-        rect: {
-          x: group.rect.x,
-          y: group.rect.y + (i + 1) * screen.node.height,
-          width: screen.node.width,
-          height: screen.node.height,
-        },
-      })
-      i++
-    }
-  }
+  /*
+  group by depth
+  find max depth = num iters <- max depth
+  find width <- max length of group in depth * node width
+  find height = sum max height per depth
+  calc center x, y
+  position nodes
+  draw nodes
+  draw arrows
+  */
 
   const arrows: Arrow[] = []
   for (let i = 0; i < calls.length; i++) {

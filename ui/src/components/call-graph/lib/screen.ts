@@ -14,7 +14,7 @@ export function map<A, F>(
 
   // Calculate group width and height
   for (const [g, fs] of groups) {
-    const node = {
+    nodes.set(g, {
       id: g,
       rect: {
         x: 0,
@@ -22,8 +22,7 @@ export function map<A, F>(
         width: screen.node.width,
         height: screen.node.height * (fs.size + 1),
       },
-    }
-    nodes.set(g, node)
+    })
 
     for (const f of fs.values()) {
       rev.set(f, g)
