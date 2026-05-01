@@ -235,6 +235,7 @@ export function drawText(
     text: string
     color?: string
     font?: string
+    // Position text at the top of the rectangle
     top?: boolean
     textAlign?: "left" | "center"
   },
@@ -272,7 +273,7 @@ export function drawText(
   }
 
   if (textAlign == "center") {
-    ctx.fillText(`${t}`, x + (width >> 1), y + (height >> 1))
+    ctx.fillText(`${t}`, x + (width >> 1), y + (top ? yPad : height >> 1))
   } else {
     ctx.fillText(`${t}`, x + xPad, y + (top ? yPad : height >> 1))
   }

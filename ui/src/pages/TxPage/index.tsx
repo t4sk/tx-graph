@@ -666,6 +666,7 @@ function TxPage() {
               return {
                 txt: `${obj?.val.name || obj?.val?.addr || "?"}`,
                 top: obj?.type == "acc",
+                textAlign: obj?.type == "acc" ? "center" : "left",
               }
             }}
             getArrowStyle={(hover, arrow) => {
