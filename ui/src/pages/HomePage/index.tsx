@@ -165,9 +165,6 @@ export function HomePage() {
           {activeTab == "ast" && (
             <div className={styles.foundrySection}>
               <AstForm />
-              <Button type="submit">
-                <Search size={16} />
-              </Button>
             </div>
           )}
         </form>

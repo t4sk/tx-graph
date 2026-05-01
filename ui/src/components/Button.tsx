@@ -12,13 +12,13 @@ const Button: React.FC<{
   disabled = false,
   onClick,
   children,
-  className = styles.btn,
+  className = "",
 }) => {
   return (
     <button
       type={type}
       disabled={disabled}
-      className={`${styles.component} ${className}`}
+      className={`${styles.component} ${styles.btn} ${className}`}
       onClick={onClick}
     >
       {children}

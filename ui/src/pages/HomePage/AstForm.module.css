@@ -25,6 +25,11 @@
   margin-right: 10px;
 }
 
+.submitBtn {
+  margin-top: 1rem;
+  width: 100%;
+}
+
 .input {
   margin: 1rem 0;
   color: #e0e0e0;

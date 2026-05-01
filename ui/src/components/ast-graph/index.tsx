@@ -1,5 +1,4 @@
 import { useMemo } from "react"
-import * as GraphTypes from "../graph/lib/types"
 import { Graph, Props as GraphProps } from "../graph"
 import * as Types from "./lib/types"
 import * as screen from "./lib/screen"
@@ -24,7 +23,6 @@ export const AstGraph = <A, F>(props: Props<A, F>) => {
   } = props
 
   const layout = useMemo(() => {
-    // @ts-ignore
     return screen.map(contracts, {
       width,
       height,

@@ -88,6 +88,7 @@ function AstPage() {
     return <div>loading...</div>
   }
 
+  /*
   const contracts = new Map([
     [39894, { id: 39894, name: "Auth", parents: [39897] }],
     [39897, { id: 39897, name: "Base", parents: [] }],
@@ -101,9 +102,9 @@ function AstPage() {
       },
     ],
   ])
-  /*
+  */
   const files = fileWatch.get("ast")
-  const contracts = Ast.parse(
+  const res = Ast.parse(
     // @ts-ignore
     files.map((f) => {
       return {
@@ -113,44 +114,49 @@ function AstPage() {
       }
     }),
   )
-  console.log("CON", contracts)
-  */
+  console.log("CON", res)
+
+  if (res?.error) {
+    return <div>error parsing AST :(</div>
+  }
 
   return (
     <div className={styles.component}>
-      <AstGraph
-        contracts={contracts}
-        disabled={false}
-        width={windowSize.width}
-        height={windowSize.height}
-        backgroundColor={STYLES.BG_COLOR}
-        getNodeStyle={(hover, node) => ({
-          fill: getNodeFillColor(hover, node),
-          stroke: STYLES.NODE_BORDER_COLOR,
-        })}
-        getNodeText={(hover, node) => ({
-          txt: contracts.get(node.id)?.name || "?",
-          top: true,
-          textAlign: "center",
-        })}
-        getArrowStyle={(hover, arrow) => {
-          const top =
-            hover?.node == arrow.i ||
-            hover?.node == arrow.s ||
-            hover?.node == arrow.e ||
-            hover?.arrows?.has(arrow.i)
-          const t = getArrowType(hover, arrow)
-          return {
-            top: !!top,
-            style: { stroke: getArrowColor(t) },
+      {res.data ? (
+        <AstGraph
+          contracts={res.data}
+          disabled={false}
+          width={windowSize.width}
+          height={windowSize.height}
+          backgroundColor={STYLES.BG_COLOR}
+          getNodeStyle={(hover, node) => ({
+            fill: getNodeFillColor(hover, node),
+            stroke: STYLES.NODE_BORDER_COLOR,
+          })}
+          getNodeText={(hover, node) => ({
+            txt: res.data!.get(node.id)?.name || "?",
+            top: true,
+            textAlign: "center",
+          })}
+          getArrowStyle={(hover, arrow) => {
+            const top =
+              hover?.node == arrow.i ||
+              hover?.node == arrow.s ||
+              hover?.node == arrow.e ||
+              hover?.arrows?.has(arrow.i)
+            const t = getArrowType(hover, arrow)
+            return {
+              top: !!top,
+              style: { stroke: getArrowColor(t) },
+            }
+          }}
+          calls={
+            [
+              /* TODO: remove */
+            ]
           }
-        }}
-        calls={
-          [
-            /* TODO: remove */
-          ]
-        }
-      />
+        />
+      ) : null}
     </div>
   )
 }

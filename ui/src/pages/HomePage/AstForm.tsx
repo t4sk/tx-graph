@@ -1,6 +1,7 @@
 import { toast } from "react-toastify"
 import * as FileTypes from "../../types/file"
 import { useFileWatchContext } from "../../contexts/FileWatch"
+import Search from "../../components/svg/Search"
 import Button from "../../components/Button"
 import Spinner from "../../components/svg/Spinner"
 import Check from "../../components/svg/Check"
@@ -97,6 +98,13 @@ const AstForm: React.FC<{}> = ({}) => {
           <li key={i}>{file.path}</li>
         ))}
       </ul>
+      <Button
+        type="submit"
+        className={styles.submitBtn}
+        disabled={astFiles.length == 0}
+      >
+        <Search size={16} />
+      </Button>
     </div>
   )
 }
