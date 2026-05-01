@@ -1,4 +1,5 @@
 import { Canvas, Point, Layout, Node, Arrow } from "./types"
+import { getMidPoints } from "./screen"
 
 const DEBUG = true
 const FONT = "system-ui"
@@ -148,15 +149,25 @@ export function draw(ctx: Canvas, params: Params) {
       })
     }
 
-    /*
     if (DEBUG) {
       drawRect(ctx.graph, {
         ...layout.rect,
         stroke: "red",
         fill: "transparent",
       })
+
+      for (const node of [...layout.nodes.values()]) {
+        const mid = getMidPoints(node.rect)
+        for (const p of Object.values(mid)) {
+          drawDot(ctx.graph, {
+            x: p.x,
+            y: p.y,
+            radius: 4,
+            fill: "rgba(255, 0, 0, 0.5)",
+          })
+        }
+      }
     }
-    */
 
     ctx.graph.restore()
   }

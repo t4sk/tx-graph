@@ -1,4 +1,4 @@
-import { Id, Point, Rect, Mid, Arrow, Node } from "./types"
+import { Point, Rect, Mid } from "./types"
 
 export function isInside(p: Point, rect: Rect): boolean {
   return (
@@ -64,39 +64,5 @@ export function box(points: Point[], xPad: number = 0, yPad: number = 0): Rect {
     y: yMin - yPad,
     width: xMax - xMin + 2 * xPad,
     height: yMax - yMin + 2 * yPad,
-  }
-}
-
-export function arrow(
-  nodes: Map<Id, Node>,
-  i: number,
-  start: Id,
-  end: Id,
-): Arrow {
-  const s = nodes.get(start) as Node
-  const e = nodes.get(end) as Node
-
-  const m0 = getMidPoints(s.rect)
-  const m1 = getMidPoints(e.rect)
-
-  let p0 = { x: 0, y: 0 }
-  let p1 = { x: 0, y: 0 }
-
-  if (m0.center.x < m1.center.x) {
-    // Call forward
-    p0 = m0.right
-    p1 = m1.left
-  } else {
-    // Call back
-    p0 = m0.right
-    p1 = m1.top
-  }
-
-  return {
-    i,
-    s: s.id,
-    e: e.id,
-    p0,
-    p1,
   }
 }

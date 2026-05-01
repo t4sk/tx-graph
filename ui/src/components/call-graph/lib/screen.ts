@@ -1,7 +1,36 @@
 import { Id, Groups, Arrow, Screen, Node, Layout } from "../../graph/lib/types"
-import { getMidPoints, arrow } from "../../graph/lib/screen"
+import { getMidPoints } from "../../graph/lib/screen"
 import { assert } from "../../graph/lib/utils"
 import { Call } from "./types"
+
+function arrow(nodes: Map<Id, Node>, i: number, src: Id, dst: Id): Arrow {
+  const s = nodes.get(src) as Node
+  const e = nodes.get(dst) as Node
+
+  const m0 = getMidPoints(s.rect)
+  const m1 = getMidPoints(e.rect)
+
+  let p0 = { x: 0, y: 0 }
+  let p1 = { x: 0, y: 0 }
+
+  if (m0.center.x < m1.center.x) {
+    // Call forward
+    p0 = m0.right
+    p1 = m1.left
+  } else {
+    // Call back
+    p0 = m0.right
+    p1 = m1.top
+  }
+
+  return {
+    i,
+    s: s.id,
+    e: e.id,
+    p0,
+    p1,
+  }
+}
 
 export function map<A, F>(
   groups: Groups,

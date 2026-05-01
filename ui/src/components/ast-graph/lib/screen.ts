@@ -1,6 +1,25 @@
 import { Id, Arrow, Screen, Node, Layout } from "../../graph/lib/types"
-import { arrow } from "../../graph/lib/screen"
+import { getMidPoints } from "../../graph/lib/screen"
 import { Contract } from "./types"
+
+function arrow(nodes: Map<Id, Node>, i: number, src: Id, dst: Id): Arrow {
+  const s = nodes.get(src) as Node
+  const e = nodes.get(dst) as Node
+
+  const m0 = getMidPoints(s.rect)
+  const m1 = getMidPoints(e.rect)
+
+  const p0 = m0.bottom
+  const p1 = m1.top
+
+  return {
+    i,
+    s: s.id,
+    e: e.id,
+    p0,
+    p1,
+  }
+}
 
 export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
   const nodes: Map<Id, Node> = new Map()
@@ -107,6 +126,7 @@ export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
   console.log("top", topAtDepth)
   console.log("nodes", nodes)
 
+  // TODO: fix
   // Position arrows
   const arrows: Arrow[] = []
   for (const [id, con] of contracts) {
