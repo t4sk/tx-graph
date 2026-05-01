@@ -267,37 +267,6 @@ export function drawText(
   ctx.fillText(`${t}`, x + xPad, y + (top ? yPad : height >> 1))
 }
 
-export function drawArrowHead(
-  ctx: CanvasRenderingContext2D,
-  params: {
-    x0: number
-    y0: number
-    x1: number
-    y1: number
-    size?: number
-    stroke?: string
-  },
-) {
-  const { x0, y0, x1, y1, size = 10, stroke = STROKE } = params
-  const angle = Math.atan2(y1 - y0, x1 - x0)
-
-  ctx.strokeStyle = stroke
-  ctx.fillStyle = stroke
-
-  ctx.beginPath()
-  ctx.moveTo(x1, y1)
-  ctx.lineTo(
-    x1 - size * Math.cos(angle - Math.PI / 6),
-    y1 - size * Math.sin(angle - Math.PI / 6),
-  )
-  ctx.lineTo(
-    x1 - size * Math.cos(angle + Math.PI / 6),
-    y1 - size * Math.sin(angle + Math.PI / 6),
-  )
-  ctx.closePath()
-  ctx.fill()
-}
-
 export function drawArrow(
   ctx: CanvasRenderingContext2D,
   params: {
@@ -364,6 +333,37 @@ export function drawArrow(
       break
     }
   }
+}
+
+export function drawArrowHead(
+  ctx: CanvasRenderingContext2D,
+  params: {
+    x0: number
+    y0: number
+    x1: number
+    y1: number
+    size?: number
+    stroke?: string
+  },
+) {
+  const { x0, y0, x1, y1, size = 10, stroke = STROKE } = params
+  const angle = Math.atan2(y1 - y0, x1 - x0)
+
+  ctx.strokeStyle = stroke
+  ctx.fillStyle = stroke
+
+  ctx.beginPath()
+  ctx.moveTo(x1, y1)
+  ctx.lineTo(
+    x1 - size * Math.cos(angle - Math.PI / 6),
+    y1 - size * Math.sin(angle - Math.PI / 6),
+  )
+  ctx.lineTo(
+    x1 - size * Math.cos(angle + Math.PI / 6),
+    y1 - size * Math.sin(angle + Math.PI / 6),
+  )
+  ctx.closePath()
+  ctx.fill()
 }
 
 export function drawStraightArrow(
@@ -538,7 +538,7 @@ export function drawBottomToTopArrow(
     textYGap = -14,
   } = params
 
-  const midX = (x0 + x1) >> 1
+  const midY = (y0 + y1) >> 1
 
   ctx.strokeStyle = stroke
   ctx.fillStyle = stroke
@@ -546,18 +546,18 @@ export function drawBottomToTopArrow(
 
   ctx.beginPath()
   ctx.moveTo(x0, y0)
-  ctx.lineTo(midX, y0)
-  ctx.lineTo(midX, y1)
+  ctx.lineTo(x0, midY)
+  ctx.lineTo(x1, midY)
   ctx.lineTo(x1, y1)
   ctx.stroke()
 
-  drawArrowHead(ctx, { x0: midX, y0: y1, x1, y1, stroke })
+  drawArrowHead(ctx, { x0: x1, y0: midY, x1, y1, stroke })
 
   if (text != null) {
     ctx.font = `${FONT_SIZE}px ${FONT}`
     ctx.textAlign = "right"
     ctx.textBaseline = "middle"
-    ctx.fillText(text.toString(), midX + textXGap, y1 + textYGap)
+    ctx.fillText(text.toString(), x1 + textXGap, y1 + textYGap)
   }
 }
 

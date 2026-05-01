@@ -134,13 +134,6 @@ export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
     }
   }
 
-  // TODO: remove, fix arrows
-  console.log("CON", contracts)
-  console.log("GROUP", groupByDepth)
-  console.log("top", topAtDepth)
-  console.log("nodes", nodes)
-
-  // TODO: fix
   // Position arrows
   const arrows: Arrow[] = []
   for (const [id, con] of contracts) {
