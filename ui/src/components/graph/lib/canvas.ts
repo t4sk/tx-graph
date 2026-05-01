@@ -42,7 +42,11 @@ export type Params = {
   height: number
   layout: Layout
   getNodeStyle: (node: Node) => { fill?: string; stroke?: string }
-  getNodeText: (node: Node) => { txt: string; top: boolean }
+  getNodeText: (node: Node) => {
+    txt: string
+    top: boolean
+    textAlign?: "left" | "center"
+  }
   getArrowStyle: (arrow: Arrow) => { top: boolean; style: { stroke?: string } }
   arrowXPad: number
   arrowYPad: number
@@ -125,7 +129,7 @@ export function draw(ctx: Canvas, params: Params) {
     }
 
     for (const node of nodes) {
-      const { txt, top } = getNodeText(node)
+      const { txt, top, textAlign } = getNodeText(node)
       if (txt) {
         drawText(ctx.graph, {
           x: node.rect.x,
@@ -134,6 +138,7 @@ export function draw(ctx: Canvas, params: Params) {
           height: node.rect.height,
           text: txt,
           top,
+          textAlign,
         })
       }
     }
@@ -231,6 +236,7 @@ export function drawText(
     color?: string
     font?: string
     top?: boolean
+    textAlign?: "left" | "center"
   },
 ) {
   const {
@@ -244,10 +250,11 @@ export function drawText(
     color = TEXT_COLOR,
     font = `${FONT_SIZE}px ${FONT}`,
     top = false,
+    textAlign = "left",
   } = params
 
   ctx.textBaseline = "middle"
-  ctx.textAlign = "left"
+  ctx.textAlign = textAlign
   ctx.font = font
   ctx.fillStyle = color
 
@@ -264,7 +271,11 @@ export function drawText(
     t = `${text.slice(0, len)}...`
   }
 
-  ctx.fillText(`${t}`, x + xPad, y + (top ? yPad : height >> 1))
+  if (textAlign == "center") {
+    ctx.fillText(`${t}`, x + (width >> 1), y + (height >> 1))
+  } else {
+    ctx.fillText(`${t}`, x + xPad, y + (top ? yPad : height >> 1))
+  }
 }
 
 export function drawArrow(
