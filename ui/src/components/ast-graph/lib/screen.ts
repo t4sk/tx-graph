@@ -37,7 +37,7 @@ function arrow(nodes: Map<Id, Node>, i: number, src: Id, dst: Id): Arrow {
 
 export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
   const nodes: Map<Id, Node> = new Map()
-  // TODO: Reverse look up
+  // TODO: Reverse look up - used to calculate padding for callback arrows
   const rev: Map<Id, Id> = new Map()
 
   // Initialize nodes
@@ -139,7 +139,7 @@ export function map(contracts: Map<Id, Contract>, screen: Screen): Layout {
   for (const [id, con] of contracts) {
     for (const p of con.parents) {
       const i = arrows.length
-      arrows.push(arrow(nodes, i, p, id))
+      arrows.push(arrow(nodes, id, p, id))
     }
   }
 

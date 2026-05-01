@@ -82,6 +82,7 @@ type ArrowType =
   | "eth"
   | ""
 
+// TODO: clean up
 function getArrowType(
   hover: GraphTypes.Hover | null,
   arrow: GraphTypes.Arrow,
@@ -149,6 +150,7 @@ function getArrowColor(t: ArrowType): string {
   }
 }
 
+// TODO: clean up
 function getNodeFillColor(
   objs: Map<
     GraphTypes.Id,

@@ -65,7 +65,7 @@ export type Screen = {
 export type ArrowType = "straight" | "zig-zag" | "callback" | "bottom-top"
 
 export type Arrow = {
-  // Call index
+  // Call index or node id
   i: number
   // Starting node id
   s: Id
