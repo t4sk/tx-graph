@@ -62,7 +62,7 @@ export type Screen = {
   }
 }
 
-export type ArrowType = "arrow" | "zigzag" | "callback"
+export type ArrowType = "straight" | "zigzag" | "callback" | "down"
 
 export type Arrow = {
   // Call index
@@ -73,6 +73,7 @@ export type Arrow = {
   e: Id
   p0: Point
   p1: Point
+  type: ArrowType
 }
 
 export type Node = {

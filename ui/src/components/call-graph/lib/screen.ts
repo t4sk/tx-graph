@@ -1,4 +1,12 @@
-import { Id, Groups, Arrow, Screen, Node, Layout } from "../../graph/lib/types"
+import {
+  Id,
+  Groups,
+  Arrow,
+  ArrowType,
+  Screen,
+  Node,
+  Layout,
+} from "../../graph/lib/types"
 import { getMidPoints } from "../../graph/lib/screen"
 import { assert } from "../../graph/lib/utils"
 import { Call } from "./types"
@@ -23,12 +31,22 @@ function arrow(nodes: Map<Id, Node>, i: number, src: Id, dst: Id): Arrow {
     p1 = m1.top
   }
 
+  let arrowType: ArrowType = "straight"
+  if (p0.y == p1.y) {
+    arrowType = "straight"
+  } else if (p1.x <= p0.x) {
+    arrowType = "callback"
+  } else {
+    arrowType = "zigzag"
+  }
+
   return {
     i,
     s: s.id,
     e: e.id,
     p0,
     p1,
+    type: arrowType,
   }
 }
 

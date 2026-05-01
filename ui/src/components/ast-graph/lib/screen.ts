@@ -18,6 +18,7 @@ function arrow(nodes: Map<Id, Node>, i: number, src: Id, dst: Id): Arrow {
     e: e.id,
     p0,
     p1,
+    type: "down",
   }
 }
 

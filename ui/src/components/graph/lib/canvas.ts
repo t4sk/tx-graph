@@ -149,6 +149,7 @@ export function draw(ctx: Canvas, params: Params) {
       })
     }
 
+    /*
     if (DEBUG) {
       drawRect(ctx.graph, {
         ...layout.rect,
@@ -168,6 +169,7 @@ export function draw(ctx: Canvas, params: Params) {
         }
       }
     }
+    */
 
     ctx.graph.restore()
   }
@@ -308,44 +310,49 @@ export function drawArrow(
 ) {
   const { layout, arrow, style, arrowXPad, arrowYPad } = params
 
-  if (arrow.p0.y == arrow.p1.y) {
-    // Straight arrow
-    drawStraightArrow(ctx, {
-      x0: arrow.p0.x,
-      y0: arrow.p0.y,
-      x1: arrow.p1.x,
-      y1: arrow.p1.y,
-      stroke: style.stroke,
-    })
-  } else if (arrow.p1.x <= arrow.p0.x) {
-    // Callback arrow
-    const g = layout.rev.get(arrow.e)
-    let yPad = -arrowYPad
-    if (g != undefined) {
-      const group = layout.nodes.get(g)
-      if (group) {
-        yPad -= arrow.p1.y - group.rect.y
-      }
+  switch (arrow.type) {
+    case "straight": {
+      drawStraightArrow(ctx, {
+        x0: arrow.p0.x,
+        y0: arrow.p0.y,
+        x1: arrow.p1.x,
+        y1: arrow.p1.y,
+        stroke: style.stroke,
+      })
+      break
     }
+    case "callback": {
+      const g = layout.rev.get(arrow.e)
+      let yPad = -arrowYPad
+      if (g != undefined) {
+        const group = layout.nodes.get(g)
+        if (group) {
+          yPad -= arrow.p1.y - group.rect.y
+        }
+      }
 
-    drawCallBackArrow(ctx, {
-      x0: arrow.p0.x,
-      y0: arrow.p0.y,
-      x1: arrow.p1.x,
-      y1: arrow.p1.y,
-      xPad: arrowXPad,
-      yPad,
-      stroke: style.stroke,
-    })
-  } else {
-    // zig-zag arrow
-    drawZigZagArrow(ctx, {
-      x0: arrow.p0.x,
-      y0: arrow.p0.y,
-      x1: arrow.p1.x,
-      y1: arrow.p1.y,
-      stroke: style.stroke,
-    })
+      drawCallBackArrow(ctx, {
+        x0: arrow.p0.x,
+        y0: arrow.p0.y,
+        x1: arrow.p1.x,
+        y1: arrow.p1.y,
+        xPad: arrowXPad,
+        yPad,
+        stroke: style.stroke,
+      })
+      break
+    }
+    // TODO: down
+    default: {
+      drawZigZagArrow(ctx, {
+        x0: arrow.p0.x,
+        y0: arrow.p0.y,
+        x1: arrow.p1.x,
+        y1: arrow.p1.y,
+        stroke: style.stroke,
+      })
+      break
+    }
   }
 }
 

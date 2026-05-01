@@ -20,27 +20,13 @@ const R = 25
 const BOX_X_PADD = 10
 const BOX_Y_PADD = 10
 
-export function getArrowType(
-  p0: Types.Point,
-  p1: Types.Point,
-): Types.ArrowType {
-  if (p0.y == p1.y) {
-    return "arrow"
-  }
-  if (p1.x <= p0.x) {
-    return "callback"
-  }
-  return "zigzag"
-}
-
 function poly(
-  p0: Types.Point,
-  p1: Types.Point,
+  a: Types.Arrow,
   xPad: number = 0,
   yPad: number = 0,
 ): Types.Point[] {
-  const type = getArrowType(p0, p1)
-  switch (type) {
+  const { p0, p1 } = a
+  switch (a.type) {
     case "zigzag": {
       const mid = (p0.x + p1.x) >> 1
       return [p0, { x: mid, y: p0.y }, { x: mid, y: p1.y }, p1]
@@ -64,7 +50,7 @@ function sample(
   xPad: number = 0,
   yPad: number = 0,
 ): Types.Point[] {
-  const ps = poly(a.p0, a.p1, xPad, yPad)
+  const ps = poly(a, xPad, yPad)
   const [len] = math.len(ps)
 
   const n = Math.max(len > STEP ? (len / STEP) | 0 : MIN_STEPS, MIN_STEPS)
@@ -315,7 +301,7 @@ export const Graph = <A,>({
         for (let i = 0; i < layout.arrows.length; i++) {
           const a = layout.arrows[i]
           let yPad = -arrowYPad
-          if (getArrowType(a.p0, a.p1) == "callback") {
+          if (a.type == "callback") {
             const g = layout.rev.get(a.e)
             if (g != undefined) {
               const group = layout.nodes.get(g)
@@ -324,11 +310,7 @@ export const Graph = <A,>({
               }
             }
           }
-          const b = screen.box(
-            poly(a.p0, a.p1, arrowXPad, yPad),
-            BOX_X_PADD,
-            BOX_Y_PADD,
-          )
+          const b = screen.box(poly(a, arrowXPad, yPad), BOX_X_PADD, BOX_Y_PADD)
           if (screen.isInside(xy, b)) {
             // TODO: cache?
             const points = sample(a, arrowXPad, yPad)
