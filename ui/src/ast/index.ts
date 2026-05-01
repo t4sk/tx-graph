@@ -8,6 +8,8 @@ function assert(b: boolean, msg: string = "") {
   }
 }
 
+// TODO: fix - allow creating AST from partial data (referenced contract id not available)
+
 // TODO: clean up
 export function parse(
   files: { name: string; path: string; data: { ast: SourceUnit } }[],
@@ -88,6 +90,7 @@ export function parse(
 
     return { data: cons, error: null }
   } catch (error) {
+    console.error("Parse AST failed:", error)
     return { data: null, error }
   }
 }
