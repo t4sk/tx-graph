@@ -21,7 +21,7 @@ function arrow(nodes: Map<Id, Node>, i: number, src: Id, dst: Id): Arrow {
 
   let arrowType: ArrowType = "straight"
   if (p0.x != p1.x) {
-    arrowType = "top-down"
+    arrowType = "bottom-top"
   }
 
   return {

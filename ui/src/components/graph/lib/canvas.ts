@@ -343,8 +343,8 @@ export function drawArrow(
       })
       break
     }
-    case "top-down": {
-      drawTopDownArrow(ctx, {
+    case "bottom-top": {
+      drawBottomToTopArrow(ctx, {
         x0: arrow.p0.x,
         y0: arrow.p0.y,
         x1: arrow.p1.x,
@@ -512,7 +512,7 @@ export function drawCallBackArrow(
   }
 }
 
-export function drawTopDownArrow(
+export function drawBottomToTopArrow(
   ctx: CanvasRenderingContext2D,
   params: {
     x0: number

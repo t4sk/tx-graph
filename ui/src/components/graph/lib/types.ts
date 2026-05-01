@@ -62,7 +62,7 @@ export type Screen = {
   }
 }
 
-export type ArrowType = "straight" | "zig-zag" | "callback" | "top-down"
+export type ArrowType = "straight" | "zig-zag" | "callback" | "bottom-top"
 
 export type Arrow = {
   // Call index
