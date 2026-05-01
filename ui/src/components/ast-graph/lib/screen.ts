@@ -1,4 +1,11 @@
-import { Id, Arrow, Screen, Node, Layout } from "../../graph/lib/types"
+import {
+  Id,
+  Arrow,
+  ArrowType,
+  Screen,
+  Node,
+  Layout,
+} from "../../graph/lib/types"
 import { getMidPoints } from "../../graph/lib/screen"
 import { Contract } from "./types"
 
@@ -12,13 +19,19 @@ function arrow(nodes: Map<Id, Node>, i: number, src: Id, dst: Id): Arrow {
   const p0 = m0.bottom
   const p1 = m1.top
 
+  let arrowType: ArrowType = "straight"
+  if (p0.x != p1.x) {
+    arrowType = "top-down"
+  }
+
   return {
     i,
     s: s.id,
     e: e.id,
     p0,
     p1,
-    type: "down",
+    // TODO: need to adjust for state vars and funs
+    type: arrowType,
   }
 }
 

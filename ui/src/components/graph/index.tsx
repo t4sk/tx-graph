@@ -27,7 +27,7 @@ function poly(
 ): Types.Point[] {
   const { p0, p1 } = a
   switch (a.type) {
-    case "zigzag": {
+    case "zig-zag": {
       const mid = (p0.x + p1.x) >> 1
       return [p0, { x: mid, y: p0.y }, { x: mid, y: p1.y }, p1]
     }

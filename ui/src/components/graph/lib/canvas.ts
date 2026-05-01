@@ -311,14 +311,15 @@ export function drawArrow(
   const { layout, arrow, style, arrowXPad, arrowYPad } = params
 
   switch (arrow.type) {
-    case "straight": {
-      drawStraightArrow(ctx, {
+    case "zig-zag": {
+      drawZigZagArrow(ctx, {
         x0: arrow.p0.x,
         y0: arrow.p0.y,
         x1: arrow.p1.x,
         y1: arrow.p1.y,
         stroke: style.stroke,
       })
+
       break
     }
     case "callback": {
@@ -342,9 +343,18 @@ export function drawArrow(
       })
       break
     }
-    // TODO: down
+    case "top-down": {
+      drawTopDownArrow(ctx, {
+        x0: arrow.p0.x,
+        y0: arrow.p0.y,
+        x1: arrow.p1.x,
+        y1: arrow.p1.y,
+        stroke: style.stroke,
+      })
+      break
+    }
     default: {
-      drawZigZagArrow(ctx, {
+      drawStraightArrow(ctx, {
         x0: arrow.p0.x,
         y0: arrow.p0.y,
         x1: arrow.p1.x,
@@ -499,6 +509,55 @@ export function drawCallBackArrow(
     ctx.textAlign = "left"
     ctx.textBaseline = "middle"
     ctx.fillText(text.toString(), x1 + textXGap, y1 + yPad + textYGap)
+  }
+}
+
+export function drawTopDownArrow(
+  ctx: CanvasRenderingContext2D,
+  params: {
+    x0: number
+    y0: number
+    x1: number
+    y1: number
+    stroke?: string
+    strokeWidth?: number
+    text?: string | number
+    textXGap?: number
+    textYGap?: number
+  },
+) {
+  const {
+    x0,
+    y0,
+    x1,
+    y1,
+    stroke = STROKE,
+    strokeWidth = 2,
+    text = null,
+    textXGap = -14,
+    textYGap = -14,
+  } = params
+
+  const midX = (x0 + x1) >> 1
+
+  ctx.strokeStyle = stroke
+  ctx.fillStyle = stroke
+  ctx.lineWidth = strokeWidth
+
+  ctx.beginPath()
+  ctx.moveTo(x0, y0)
+  ctx.lineTo(midX, y0)
+  ctx.lineTo(midX, y1)
+  ctx.lineTo(x1, y1)
+  ctx.stroke()
+
+  drawArrowHead(ctx, { x0: midX, y0: y1, x1, y1, stroke })
+
+  if (text != null) {
+    ctx.font = `${FONT_SIZE}px ${FONT}`
+    ctx.textAlign = "right"
+    ctx.textBaseline = "middle"
+    ctx.fillText(text.toString(), midX + textXGap, y1 + textYGap)
   }
 }
 

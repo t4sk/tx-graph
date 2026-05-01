@@ -37,7 +37,7 @@ function arrow(nodes: Map<Id, Node>, i: number, src: Id, dst: Id): Arrow {
   } else if (p1.x <= p0.x) {
     arrowType = "callback"
   } else {
-    arrowType = "zigzag"
+    arrowType = "zig-zag"
   }
 
   return {
