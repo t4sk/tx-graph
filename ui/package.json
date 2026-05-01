@@ -16,7 +16,8 @@
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.1",
     "react-syntax-highlighter": "^16.1.1",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "solidity-ast": "^0.4.62"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

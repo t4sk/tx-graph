@@ -4,6 +4,7 @@ import { useWindowSizeContext } from "../../contexts/WindowSize"
 import { useFileWatchContext } from "../../contexts/FileWatch"
 import * as GraphTypes from "../../components/graph/lib/types"
 import { AstGraph } from "../../components/ast-graph"
+import * as Ast from "../../ast"
 import styles from "./index.module.css"
 
 // Canvas doesn't recognize css var colors
@@ -18,12 +19,12 @@ const STYLES = {
   NODE_HOVER_TEXT_COLOR: "rgb(210, 215, 255)",
   NODE_HOVER_BORDER_COLOR: "rgb(129, 140, 248)",
   NODE_DIM_COLOR: "rgba(20, 20, 32, 0.5)",
-  ARROW_COLOR: "rgb(160, 160, 170)",
+  ARROW_COLOR: "rgb(250, 160, 100)",
   ARROW_DIM_COLOR: "rgb(80, 85, 95)",
   // ARROW_IN_COLOR: "rgb(255, 99, 99)",
   ARROW_IN_COLOR: "rgb(64, 196, 255)",
-  ARROW_OUT_COLOR: "rgb(250, 160, 100)",
-  ARROW_HOVER_COLOR: "rgb(200, 160, 255)",
+  ARROW_OUT_COLOR: "rgb(64, 196, 255)",
+  ARROW_HOVER_COLOR: "rgb(64, 196, 255)",
   ARROW_PIN_COLOR: "rgb(255, 215, 0)",
   ARROW_TRACER_COLOR: "rgb(0, 255, 136)",
   ARROW_TRACER_ETH_COLOR: "#FF4DB8",
@@ -100,10 +101,25 @@ function AstPage() {
       },
     ],
   ])
+  /*
+  const files = fileWatch.get("ast")
+  const contracts = Ast.parse(
+    // @ts-ignore
+    files.map((f) => {
+      return {
+        name: f.name,
+        path: f.path,
+        data: f.data,
+      }
+    }),
+  )
+  console.log("CON", contracts)
+  */
 
   return (
     <div className={styles.component}>
       <AstGraph
+        contracts={contracts}
         disabled={false}
         width={windowSize.width}
         height={windowSize.height}

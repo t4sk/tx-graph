@@ -7,9 +7,9 @@ import * as screen from "./lib/screen"
 // TODO: fix graph type
 // @ts-ignore
 export type Props<A, F> = Omit<GraphProps<Types.Call<A, F>>, "layout"> & {
+  contracts: Map<number, Types.Contract>
   nodeWidth?: number
   nodeHeight?: number
-  // groups: GraphTypes.Groups
 }
 
 export const AstGraph = <A, F>(props: Props<A, F>) => {
@@ -20,27 +20,8 @@ export const AstGraph = <A, F>(props: Props<A, F>) => {
     nodeHeight = 40,
     nodeXGap = 50,
     nodeYGap = 50,
+    contracts,
   } = props
-
-  const contracts = new Map([
-    [39894, { id: 39894, name: "Auth", parents: [39897] }],
-    [39897, { id: 39897, name: "Base", parents: [] }],
-    [39972, { id: 39972, name: "Token", parents: [39897] }],
-    [
-      40013,
-      {
-        id: 40013,
-        name: "Vault",
-        parents: [39894, 39972, 39897],
-      },
-    ],
-  ])
-
-  const groupByDepth = {
-    "1": [39894, 39972],
-    "0": [39897],
-    "3": [40013],
-  }
 
   const layout = useMemo(() => {
     // @ts-ignore
@@ -60,9 +41,7 @@ export const AstGraph = <A, F>(props: Props<A, F>) => {
         },
       },
     })
-  }, [width, height])
-
-  console.log("LAYOUTS", layout)
+  }, [contracts, width, height])
 
   return <Graph {...props} layout={layout} />
 }
