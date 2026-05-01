@@ -41,7 +41,8 @@ function AstPage() {
         getNodeStyle={() => ({ fill: "black", stroke: "white" })}
         getNodeText={(hover, node) => ({
           txt: contracts.get(node.id)?.name || "?",
-          top: false,
+          top: true,
+          textAlign: "center",
         })}
         getArrowStyle={() => ({ top: false, style: { stroke: "white" } })}
         calls={[]}
