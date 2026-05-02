@@ -8,9 +8,8 @@ function assert(b: boolean, msg: string = "") {
   }
 }
 
-// TODO: fix - allow creating AST from partial data (referenced contract id not available)
-
-// TODO: clean up
+// TODO: fix - render with partial AST info (example Rebase)
+// TODO: clean up, replace warnings?
 export function parse(
   files: { name: string; path: string; data: { ast: SourceUnit } }[],
 ): { data: Map<number, Contract> | null; error: any } {
@@ -26,11 +25,13 @@ export function parse(
     // Group by depth (ContractDefinition ids)
     const groupByDepth: Map<number, Set<number>> = new Map()
 
-    for (const { data } of files) {
+    for (const { path, data } of files) {
       // Map SourceUnit id to SourceUnit
       const srcUnits = [...findAll("SourceUnit", data.ast)]
       for (const src of srcUnits) {
-        assert(!srcMap.has(src.id))
+        if (srcMap.has(src.id)) {
+          console.warn(`${path} overwriting source: id = ${src.id}`)
+        }
         srcMap.set(src.id, src)
       }
 
@@ -44,7 +45,7 @@ export function parse(
               const sourceUnitId = idToSourceUnitId.get(ref)
               assert(
                 sourceUnitId == importDir.sourceUnit,
-                `ref: ${ref} != source unit: ${sourceUnitId}`,
+                `${path} ref: ${ref} != source unit: ${sourceUnitId}`,
               )
             }
             idToSourceUnitId.set(ref, importDir.sourceUnit)
@@ -55,10 +56,11 @@ export function parse(
       // Map id to ContractDefinition and contract depth
       const contractDefs = [...findAll("ContractDefinition", data.ast)]
       for (const con of contractDefs) {
-        assert(
-          !idToContractDef.has(con.id),
-          `contract already set name: ${con.name} id: ${con.id}`,
-        )
+        if (idToContractDef.has(con.id)) {
+          console.warn(
+            `${path} contract already set name: ${con.name} id: ${con.id}`,
+          )
+        }
         idToContractDef.set(con.id, con)
 
         const depth = con.linearizedBaseContracts.length - 1
@@ -68,8 +70,6 @@ export function parse(
           groupByDepth.set(depth, new Set())
         }
         const set = groupByDepth.get(depth)!
-        assert(set != undefined, `set at depth: ${depth} is undefined`)
-        assert(!set.has(con.id), `already in set id: ${con.id}`)
         set.add(con.id)
       }
     }

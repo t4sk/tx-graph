@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo } from "react"
 import { toast } from "react-toastify"
 import { useWindowSizeContext } from "../../contexts/WindowSize"
 import { useFileWatchContext } from "../../contexts/FileWatch"
@@ -104,17 +104,21 @@ function AstPage() {
   ])
   */
   const files = fileWatch.get("ast")
-  const res = Ast.parse(
-    // @ts-ignore
-    files.map((f) => {
-      return {
-        name: f.name,
-        path: f.path,
-        data: f.data,
-      }
-    }),
+  const res = useMemo(
+    () =>
+      Ast.parse(
+        // @ts-ignore
+        files.map((f) => {
+          return {
+            name: f.name,
+            path: f.path,
+            data: f.data,
+          }
+        }),
+      ),
+    [files],
   )
-  console.log("CON", res)
+  console.log("parse AST results", res)
 
   if (res?.error) {
     return <div>error parsing AST :(</div>

@@ -7,6 +7,8 @@ import Spinner from "../../components/svg/Spinner"
 import Check from "../../components/svg/Check"
 import styles from "./AstForm.module.css"
 
+import * as Ast from "../../ast"
+
 const FILE_SYS_ACCESS = !!(
   // @ts-ignore
   (window?.showDirectoryPicker && window?.showOpenFilePicker)
@@ -53,6 +55,19 @@ const AstForm: React.FC<{}> = ({}) => {
       }
     }
   }
+
+  const astFiles = fileWatch.get("ast")
+  const res = Ast.parse(
+    // @ts-ignore
+    astFiles.map((f) => {
+      return {
+        name: f.name,
+        path: f.path,
+        data: f.data,
+      }
+    }),
+  )
+  console.log("parse AST results", res)
 
   return (
     <div>
