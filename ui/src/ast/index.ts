@@ -18,6 +18,7 @@ export function parse(
     const srcMap: Map<number, SourceUnit> = new Map()
     // ContractDefinition id => SourceUnit id
     const idToSourceUnitId: Map<number, number> = new Map()
+    const idToName: Map<number, string> = new Map()
     // ContractDefinition id => ContractDefinition
     const idToContractDef: Map<number, ContractDefinition> = new Map()
     // ContractDefinition id => depth
@@ -26,6 +27,12 @@ export function parse(
     const groupByDepth: Map<number, Set<number>> = new Map()
 
     for (const { path, data } of files) {
+      console.log(path)
+      if (!data.ast) {
+        console.warn(`${path}: AST missing`)
+        continue
+      }
+
       // Map SourceUnit id to SourceUnit
       const srcUnits = [...findAll("SourceUnit", data.ast)]
       for (const src of srcUnits) {
@@ -41,14 +48,18 @@ export function parse(
         for (const sym of importDir.symbolAliases) {
           const ref = sym.foreign.referencedDeclaration
           if (ref != undefined) {
-            if (idToSourceUnitId.has(ref)) {
-              const sourceUnitId = idToSourceUnitId.get(ref)
+            // TODO: fix - doesn't work with Script.sol
+            /*
+            const sourceUnitId = idToSourceUnitId.get(ref)
+            if (sourceUnitId != undefined) {
               assert(
                 sourceUnitId == importDir.sourceUnit,
-                `${path} ref: ${ref} != source unit: ${sourceUnitId}`,
+                `${path} ref: ${ref} stored source unit: ${sourceUnitId} import source unit: ${importDir.sourceUnit}`,
               )
             }
             idToSourceUnitId.set(ref, importDir.sourceUnit)
+            */
+            idToName.set(ref, sym.foreign.name)
           }
         }
       }
@@ -58,10 +69,11 @@ export function parse(
       for (const con of contractDefs) {
         if (idToContractDef.has(con.id)) {
           console.warn(
-            `${path} contract already set name: ${con.name} id: ${con.id}`,
+            `${path} contract already set - name: ${con.name} id: ${con.id}`,
           )
         }
         idToContractDef.set(con.id, con)
+        idToName.set(con.id, con.name)
 
         const depth = con.linearizedBaseContracts.length - 1
         idToDepth.set(con.id, depth)
@@ -86,6 +98,21 @@ export function parse(
         // Remove self
         parents: con.linearizedBaseContracts.slice(1),
       })
+    }
+
+    // Placeholder for contract ids without ContractDefinition
+    // but referenced in linearizedBaseContracts
+    for (const [, con] of cons) {
+      for (const id of con.parents) {
+        if (!cons.has(id)) {
+          const name = idToName.get(id) || `${id}`
+          cons.set(id, {
+            id,
+            name,
+            parents: [],
+          })
+        }
+      }
     }
 
     return { data: cons, error: null }

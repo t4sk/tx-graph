@@ -118,7 +118,6 @@ function AstPage() {
       ),
     [files],
   )
-  console.log("parse AST results", res)
 
   if (res?.error) {
     return <div>error parsing AST :(</div>
