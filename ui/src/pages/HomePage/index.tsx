@@ -113,10 +113,6 @@ export function HomePage() {
               {inputs.chain == "foundry-test" ? (
                 <div className={styles.foundrySection}>
                   <FoundryForm />
-                  {/* TODO: submit button inside foundry form */}
-                  <Button type="submit">
-                    <Search size={16} />
-                  </Button>
                 </div>
               ) : (
                 <>

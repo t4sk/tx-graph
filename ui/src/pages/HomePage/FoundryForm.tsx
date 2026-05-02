@@ -3,6 +3,7 @@ import * as FileTypes from "../../types/file"
 import { useFileWatchContext } from "../../contexts/FileWatch"
 import Button from "../../components/Button"
 import Spinner from "../../components/svg/Spinner"
+import Search from "../../components/svg/Search"
 import Check from "../../components/svg/Check"
 import styles from "./FoundryForm.module.css"
 
@@ -135,6 +136,10 @@ const FoundryForm: React.FC<{}> = ({}) => {
           <li key={i}>{file.path}</li>
         ))}
       </ul>
+
+      <Button type="submit" className={styles.submitBtn}>
+        <Search size={16} />
+      </Button>
     </div>
   )
 }

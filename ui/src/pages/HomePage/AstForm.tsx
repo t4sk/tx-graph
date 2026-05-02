@@ -98,11 +98,7 @@ const AstForm: React.FC<{}> = ({}) => {
           <li key={i}>{file.path}</li>
         ))}
       </ul>
-      <Button
-        type="submit"
-        className={styles.submitBtn}
-        disabled={astFiles.length == 0}
-      >
+      <Button type="submit" className={styles.submitBtn}>
         <Search size={16} />
       </Button>
     </div>
