@@ -14,7 +14,7 @@ const FILE_SYS_ACCESS = !!(
 
 const AstForm: React.FC<{}> = ({}) => {
   const fileWatch = useFileWatchContext()
-  const astFiles = fileWatch.get("ast")
+  const files = fileWatch.get("ast")
 
   // TODO: no need to use filewatch?
   const selectAstFiles = async () => {
@@ -58,7 +58,7 @@ const AstForm: React.FC<{}> = ({}) => {
     <div>
       <div className={styles.input}>
         <div className={styles.row}>
-          {astFiles.length > 0 ? (
+          {files.length > 0 ? (
             <Check size={16} className={styles.check} />
           ) : null}
           <div>Upload AST files</div>
@@ -74,10 +74,10 @@ const AstForm: React.FC<{}> = ({}) => {
           <div className={styles.watch}>
             <Button onClick={selectAstFiles}>select files</Button>
             <div className={styles.status}>
-              {astFiles.length > 0 ? (
+              {files.length > 0 ? (
                 <>
                   <Spinner size={16} className={styles.spinner} />
-                  <div>watching {astFiles.length} files</div>
+                  <div>watching {files.length} files</div>
                 </>
               ) : null}
             </div>
@@ -94,7 +94,7 @@ const AstForm: React.FC<{}> = ({}) => {
         )}
       </div>
       <ul className={styles.abiList}>
-        {astFiles.map((file, i) => (
+        {files.map((file, i) => (
           <li key={i}>{file.path}</li>
         ))}
       </ul>

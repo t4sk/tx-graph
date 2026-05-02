@@ -13,8 +13,8 @@ const FILE_SYS_ACCESS = !!(
 )
 const FoundryForm: React.FC<{}> = ({}) => {
   const fileWatch = useFileWatchContext()
-  const abis = fileWatch.get("abi")
-  const trace = fileWatch.get("trace")?.[0]
+  const abiFiles = fileWatch.get("abi")
+  const traceFile = fileWatch.get("trace")?.[0]
 
   const selectTraceFile = async () => {
     try {
@@ -75,7 +75,7 @@ const FoundryForm: React.FC<{}> = ({}) => {
       ) : null}
       <div className={styles.input}>
         <div className={styles.row}>
-          {trace ? <Check size={16} className={styles.check} /> : null}
+          {traceFile ? <Check size={16} className={styles.check} /> : null}
           <div>1. Upload output of test trace</div>
         </div>
         <div className={styles.wrap}>
@@ -89,10 +89,10 @@ const FoundryForm: React.FC<{}> = ({}) => {
           <div className={styles.watch}>
             <Button onClick={selectTraceFile}>select file</Button>
             <div className={styles.status}>
-              {trace ? (
+              {traceFile ? (
                 <>
                   <Spinner size={16} className={styles.spinner} />
-                  <div>watching {trace.name}</div>
+                  <div>watching {traceFile.name}</div>
                 </>
               ) : null}
             </div>
@@ -103,7 +103,7 @@ const FoundryForm: React.FC<{}> = ({}) => {
       </div>
       <div className={styles.input}>
         <div className={styles.row}>
-          {abis.length > 0 ? (
+          {abiFiles.length > 0 ? (
             <Check size={16} className={styles.check} />
           ) : null}
           <div>2. Upload ABI files</div>
@@ -112,10 +112,10 @@ const FoundryForm: React.FC<{}> = ({}) => {
           <div className={styles.watch}>
             <Button onClick={selectAbiFiles}>select files</Button>
             <div className={styles.status}>
-              {abis.length > 0 ? (
+              {abiFiles.length > 0 ? (
                 <>
                   <Spinner size={16} className={styles.spinner} />
-                  <div>watching {abis.length} files</div>
+                  <div>watching {abiFiles.length} files</div>
                 </>
               ) : null}
             </div>
@@ -132,7 +132,7 @@ const FoundryForm: React.FC<{}> = ({}) => {
         )}
       </div>
       <ul className={styles.abiList}>
-        {abis.map((file, i) => (
+        {abiFiles.map((file, i) => (
           <li key={i}>{file.path}</li>
         ))}
       </ul>
