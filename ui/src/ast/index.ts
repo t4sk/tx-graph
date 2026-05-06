@@ -23,8 +23,6 @@ export function parse(
     const idToContractDef: Map<number, ContractDefinition> = new Map()
     // ContractDefinition id => depth
     const idToDepth: Map<number, number> = new Map()
-    // Group by depth (ContractDefinition ids)
-    const groupByDepth: Map<number, Set<number>> = new Map()
 
     for (const { path, data } of files) {
       console.log(path)
@@ -77,12 +75,6 @@ export function parse(
 
         const depth = con.linearizedBaseContracts.length - 1
         idToDepth.set(con.id, depth)
-
-        if (!groupByDepth.has(depth)) {
-          groupByDepth.set(depth, new Set())
-        }
-        const set = groupByDepth.get(depth)!
-        set.add(con.id)
       }
     }
 
@@ -92,12 +84,42 @@ export function parse(
         con.linearizedBaseContracts[0] == id,
         `invalid linearized base contracts: ${con.linearizedBaseContracts}`,
       )
-      cons.set(id, {
+
+      const c = {
         id,
         name: con.name,
         // Remove self
         parents: con.linearizedBaseContracts.slice(1),
-      })
+        vars: new Map(),
+        funcs: new Map(),
+      }
+
+      cons.set(id, c)
+
+      const vars = findAll("VariableDeclaration", con)
+      for (const v of vars) {
+        if (v.stateVariable) {
+          c.vars.set(v.id, {
+            id: v.id,
+            name: v.name,
+            type: v.typeDescriptions.typeString,
+            vis: v.visibility,
+            mut: v.mutability,
+          })
+        }
+      }
+
+      const funcs = findAll("FunctionDefinition", con)
+      for (const func of funcs) {
+        c.funcs.set(func.id, {
+          id: func.id,
+          kindt: func.kind,
+          name: func.name,
+          selector: func.functionSelector,
+          vis: func.visibility,
+          mut: func.stateMutability,
+        })
+      }
     }
 
     // Placeholder for contract ids without ContractDefinition
@@ -110,6 +132,8 @@ export function parse(
             id,
             name,
             parents: [],
+            vars: new Map(),
+            funcs: new Map(),
           })
         }
       }

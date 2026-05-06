@@ -57,6 +57,7 @@ export function map<A, F>(
 ): Layout {
   const nodes: Map<Id, Node> = new Map()
   // Reverse look up call.src or call.dst to group id
+  // used to calculate padding for callback arrows
   const rev: Map<Id, Id> = new Map()
 
   // Calculate group width and height

@@ -56,7 +56,6 @@ const AstForm: React.FC<{}> = ({}) => {
     }
   }
 
-  /*
   const astFiles = fileWatch.get("ast")
   const res = Ast.parse(
     // @ts-ignore
@@ -69,7 +68,6 @@ const AstForm: React.FC<{}> = ({}) => {
     }),
   )
   console.log("parse AST results", res)
-  */
 
   return (
     <div>
